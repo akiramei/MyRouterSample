@@ -1,4 +1,3 @@
-// App.fs
 module App
 
 open Elmish
@@ -7,270 +6,285 @@ open Feliz
 open Feliz.Router
 open Browser.Dom
 
-// ページの定義
 type Page =
     | Home
     | Counter
-    | UserProfile of username: string
+    | UserProfile of string
+    | NotFound
 
-// ページごとのモデル
 type CounterModel = { Count: int }
 type UserProfileModel = { Username: string; IsLoading: bool }
 
-// アプリケーション全体のモデル
-type Model =
-    { CurrentPage: Page
-      CounterModel: CounterModel
-      UserProfileModel: UserProfileModel }
+type Model = {
+    Counter: CounterModel
+    UserProfile: UserProfileModel
+    CurrentUrl: string list
+    CurrentPage: Page
+}
 
-// ページごとのメッセージ
-type CounterMsg =
-    | Increment
-    | Decrement
-
-type UserProfileMsg =
-    | LoadUserData
-    | UserDataLoaded
-
-// アプリケーション全体のメッセージ
 type Msg =
     | CounterMsg of CounterMsg
     | UserProfileMsg of UserProfileMsg
-    | NavigateTo of Page
     | UrlChanged of string list
 
-// URL解析
-let parseUrl (segments: string list) =
-    console.log ("URL segments:", segments)
+and CounterMsg =
+    | Increment
+    | Decrement
 
-    match segments with
+and UserProfileMsg =
+    | LoadUserData of string
+    | UserDataLoaded
+
+let parseUrl (urlSegments: string list) =
+    match urlSegments with
     | [] -> Home
     | [ "counter" ] -> Counter
     | [ "user"; username ] -> UserProfile username
-    | _ -> Home
+    | _ -> NotFound
 
-// URL生成
-let toUrl =
-    function
-    | Home -> []
-    | Counter -> [ "counter" ]
-    | UserProfile username -> [ "user"; username ]
+let init () = 
+    let initialUrl = Router.currentPath()
+    {
+        Counter = { Count = 0 }
+        UserProfile = { Username = ""; IsLoading = false }
+        CurrentUrl = initialUrl
+        CurrentPage = parseUrl initialUrl
+    }, Cmd.none
 
-// 初期状態
-let init () : Model * Cmd<Msg> =
-    console.log ("init関数が呼ばれました")
-
-    let initialModel =
-        { CurrentPage = Home
-          CounterModel = { Count = 0 }
-          UserProfileModel = { Username = ""; IsLoading = false } }
-
-    // 初期URLに基づいたページ設定
-    let initialUrl = Router.currentUrl ()
-    console.log ("初期URL:", initialUrl)
-
-    let initialPage = parseUrl initialUrl
-    console.log ("初期ページ:", initialPage)
-
-    let updatedModel =
-        { initialModel with
-            CurrentPage = initialPage }
-
-    match initialPage with
-    | UserProfile username ->
-        // ユーザープロファイルページの場合、データをロード
-        let userModel =
-            { updatedModel.UserProfileModel with
-                Username = username
-                IsLoading = true }
-
-        { updatedModel with
-            UserProfileModel = userModel },
-        Cmd.ofMsg (UserProfileMsg LoadUserData)
-    | _ -> updatedModel, Cmd.none
-
-// カウンターページのupdate関数
-let updateCounter (msg: CounterMsg) (model: CounterModel) : CounterModel * Cmd<CounterMsg> =
+let updateCounter msg model =
     match msg with
     | Increment -> { model with Count = model.Count + 1 }, Cmd.none
     | Decrement -> { model with Count = model.Count - 1 }, Cmd.none
 
-// ユーザープロファイルページのupdate関数
-let updateUserProfile (msg: UserProfileMsg) (model: UserProfileModel) : UserProfileModel * Cmd<UserProfileMsg> =
+let updateUserProfile msg model =
     match msg with
-    | LoadUserData ->
-        // 実際のアプリケーションでは、ここでHTTPリクエストなどを行う
-        // 簡略化のため、すぐにロード完了とする
-        { model with IsLoading = false }, Cmd.ofMsg UserDataLoaded
-    | UserDataLoaded -> model, Cmd.none
+    | LoadUserData username ->
+        { model with IsLoading = true; Username = username }, 
+        Cmd.ofMsg (UserDataLoaded)
+    | UserDataLoaded ->
+        { model with IsLoading = false }, Cmd.none
 
-// メインのupdate関数
-let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
+let update msg model =
     match msg with
-    | CounterMsg subMsg ->
-        let counterModel, counterCmd = updateCounter subMsg model.CounterModel
+    | CounterMsg counterMsg ->
+        let counter, cmd = updateCounter counterMsg model.Counter
+        { model with Counter = counter }, Cmd.map CounterMsg cmd
+    | UserProfileMsg profileMsg ->
+        let profile, cmd = updateUserProfile profileMsg model.UserProfile
+        { model with UserProfile = profile }, Cmd.map UserProfileMsg cmd
+    | UrlChanged newUrl ->
+        { model with CurrentUrl = newUrl; CurrentPage = parseUrl newUrl }, Cmd.none
 
-        { model with
-            CounterModel = counterModel },
-        Cmd.map CounterMsg counterCmd
+[<ReactComponent>]
+let RouterView (model: Model) (dispatch: Msg -> unit) =
+    let isActive path =
+        match model.CurrentUrl with
+        | [] when path = "" -> "active"
+        | [ p ] when p = path -> "active"
+        | [ "user"; username ] when path = "user/john" && username = "john" -> "active"
+        | [ "user"; username ] when path = "user/alice" && username = "alice" -> "active"
+        | _ -> ""
 
-    | UserProfileMsg subMsg ->
-        let userModel, userCmd = updateUserProfile subMsg model.UserProfileModel
+    Html.div [
+        prop.className "app-container"
+        prop.children [
+            Html.nav [
+                prop.className "navbar"
+                prop.children [
+                    Html.ul [
+                        prop.className "nav-list"
+                        prop.children [
+                            Html.li [
+                                prop.className ("nav-item " + isActive "")
+                                prop.onClick (fun e -> 
+                                    e.preventDefault()
+                                    Router.navigate("#/counter")
+                                    Router.navigate("")
+                                )
+                                prop.children [
+                                    Html.a [
+                                        prop.href "/"
+                                        prop.text "Home"
+                                    ]
+                                ]
+                            ]
+                            Html.li [
+                                prop.className ("nav-item " + isActive "counter")
+                                prop.onClick (fun e -> 
+                                    e.preventDefault()
+                                    Router.navigate("#/counter")
+                                )
+                                prop.children [
+                                    Html.a [
+                                        prop.href "/counter"
+                                        prop.onClick (fun e -> 
+                                            e.preventDefault()
+                                            Router.navigate("#/counter")
+                                        )
+                                        prop.text "Counter"
+                                    ]
+                                ]
+                            ]
+                            Html.li [
+                                prop.className ("nav-item " + isActive "user/john")
+                                prop.onClick (fun e -> 
+                                    e.preventDefault()
+                                    Router.navigate("#/user/john")
+                                )
+                                prop.children [
+                                    Html.a [
+                                        prop.href "/user/john"
+                                        prop.text "John's Profile"
+                                    ]
+                                ]
+                            ]
+                            Html.li [
+                                prop.className ("nav-item " + isActive "user/alice")
+                                prop.onClick (fun e -> 
+                                    e.preventDefault()
+                                    Router.navigate("#/user/alice")
+                                )
+                                prop.children [
+                                    Html.a [
+                                        prop.href "/user/alice"
+                                        prop.text "Alice's Profile"
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
 
-        { model with
-            UserProfileModel = userModel },
-        Cmd.map UserProfileMsg userCmd
+            React.router [
+                router.hashMode
+                router.onUrlChanged (fun urlSegments -> dispatch (UrlChanged urlSegments))
+                router.children [
+                    match model.CurrentPage with
+                    | Home -> 
+                        Html.div [
+                            prop.className "page"
+                            prop.children [
+                                Html.h1 "Home"
+                                Html.p "Welcome to the Elmish Router Sample App"
+                            ]
+                        ]
+                    | Counter -> 
+                        Html.div [
+                            prop.className "page"
+                            prop.children [
+                                Html.h1 "Counter"
+                                Html.p (sprintf "Current count: %d" model.Counter.Count)
+                                Html.button [
+                                    prop.onClick (fun _ -> dispatch (CounterMsg Increment))
+                                    prop.text "+"
+                                ]
+                                Html.button [
+                                    prop.onClick (fun _ -> dispatch (CounterMsg Decrement))
+                                    prop.text "-"
+                                ]
+                            ]
+                        ]
+                    | UserProfile username -> 
+                        if model.UserProfile.Username <> username then
+                            dispatch (UserProfileMsg (LoadUserData username))
 
-    | NavigateTo page ->
-        match page with
-        | Home ->
-            console.log ("ナビゲーション: Home")
-            Router.navigate ("")
-            model, Cmd.none
-        | Counter ->
-            console.log ("ナビゲーション: Counter")
-            Router.navigate ("counter")
-            model, Cmd.none
-        | UserProfile username ->
-            console.log ("ナビゲーション: User", username)
-            Router.navigate (sprintf "user/%s" username)
-            model, Cmd.none
+                        Html.div [
+                            prop.className "page"
+                            prop.children [
+                                Html.h1 (sprintf "%s's Profile" username)
+                                if model.UserProfile.IsLoading then
+                                    Html.p "Loading..."
+                                else
+                                    Html.p (sprintf "Username: %s" username)
+                            ]
+                        ]
+                    | NotFound -> 
+                        Html.div [
+                            prop.className "page"
+                            prop.children [
+                                Html.h1 "Not Found"
+                            ]
+                        ]
+                ]
+            ]
 
-    | UrlChanged segments ->
-        let page = parseUrl segments
-        let nextModel = { model with CurrentPage = page }
+            Html.style """
+                .app-container {
+                    font-family: Arial, sans-serif; 
+                    max-width: 800px; 
+                    margin: 0 auto; 
+                    padding: 20px;
+                }
 
-        match page with
-        | UserProfile username ->
-            // ユーザープロファイルページに遷移した場合、データをロード
-            let userModel =
-                { nextModel.UserProfileModel with
-                    Username = username
-                    IsLoading = true }
+                .navbar {
+                    display: flex;
+                    background-color: #f0f0f0;
+                    padding: 10px;
+                    margin-bottom: 20px;
+                    border-radius: 5px;
+                    border-bottom: 2px solid #ddd;
+                }
 
-            { nextModel with
-                UserProfileModel = userModel },
-            Cmd.ofMsg (UserProfileMsg LoadUserData)
-        | _ -> nextModel, Cmd.none
+                .nav-list {
+                    display: flex;
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    width: 100%;
+                }
+                .nav-item {
+                    flex-grow: 1;
+                    text-align: center;
+                    padding: 10px 20px;
+                    cursor: pointer; /* ✅ 全体をクリック可能に */
+                    transition: background-color 0.3s ease;
+                    border-bottom: 3px solid transparent;
+                }
 
-// ナビゲーションビュー
-let navigationView (model: Model) (dispatch: Msg -> unit) =
-    Html.div
-        [ prop.className "navbar"
-          prop.children
-              [ Html.ul
-                    [ prop.className "nav-list"
-                      prop.children
-                          [ Html.li
-                                [ prop.className "nav-item"
-                                  prop.children
-                                      [ Html.a
-                                            [ prop.href (Router.format ([]))
-                                              prop.onClick (fun e ->
-                                                  e.preventDefault ()
-                                                  console.log ("Home リンクがクリックされました")
-                                                  dispatch (NavigateTo Home))
-                                              prop.text "Home" ] ] ]
-                            Html.li
-                                [ prop.className "nav-item"
-                                  prop.children
-                                      [ Html.a
-                                            [ prop.href (Router.format ([ "counter" ]))
-                                              prop.onClick (fun e ->
-                                                  e.preventDefault ()
-                                                  console.log ("Counter リンクがクリックされました")
-                                                  dispatch (NavigateTo Counter))
-                                              prop.text "Counter" ] ] ]
-                            Html.li
-                                [ prop.className "nav-item"
-                                  prop.children
-                                      [ Html.a
-                                            [ prop.href (Router.format ([ "user"; "john" ]))
-                                              prop.onClick (fun e ->
-                                                  e.preventDefault ()
-                                                  console.log ("John リンクがクリックされました")
-                                                  dispatch (NavigateTo(UserProfile "john")))
-                                              prop.text "John's Profile" ] ] ]
-                            Html.li
-                                [ prop.className "nav-item"
-                                  prop.children
-                                      [ Html.a
-                                            [ prop.href (Router.format ([ "user"; "alice" ]))
-                                              prop.onClick (fun e ->
-                                                  e.preventDefault ()
-                                                  console.log ("Alice リンクがクリックされました")
-                                                  dispatch (NavigateTo(UserProfile "alice")))
-                                              prop.text "Alice's Profile" ] ] ] ] ] ] ]
+                .nav-item a {
+                    display: block; /* ✅ <li> 全体がクリック可能な見た目と一致する */
+                    width: 100%;
+                    height: 100%;
+                    text-decoration: none;
+                    color: #333;
+                    font-weight: bold;
+                    padding: 10px 0;
+                }
 
-// ホームページビュー
-let homeView =
-    Html.div
-        [ prop.className "page"
-          prop.children [ Html.h1 "Home"; Html.p "Welcome to the Elmish Router Sample App" ] ]
+                .nav-item:hover {
+                    background-color: #ddd;
+                }
 
-// カウンターページビュー
-let counterView (model: CounterModel) (dispatch: CounterMsg -> unit) =
-    Html.div
-        [ prop.className "page"
-          prop.children
-              [ Html.h1 "Counter"
-                Html.p (sprintf "Current count: %d" model.Count)
-                Html.button [ prop.onClick (fun _ -> dispatch Increment); prop.text "+" ]
-                Html.button [ prop.onClick (fun _ -> dispatch Decrement); prop.text "-" ] ] ]
+                .nav-item.active {
+                    background-color: #fff;
+                    border-bottom: 3px solid #007bff;
+                    font-weight: bold;
+                    color: #007bff;
+                }
 
-// ユーザープロファイルページビュー
-let userProfileView (model: UserProfileModel) (dispatch: UserProfileMsg -> unit) =
-    Html.div
-        [ prop.className "page"
-          prop.children
-              [ Html.h1 (sprintf "%s's Profile" model.Username)
-                if model.IsLoading then
-                    Html.p "Loading..."
-                else
-                    Html.div
-                        [ prop.children
-                              [ Html.p (sprintf "Username: %s" model.Username)
-                                Html.p "Profile data loaded successfully!" ] ] ] ]
+                .content {
+                    padding: 20px;
+                    background-color: #f9f9f9;
+                    border-radius: 5px;
+                }
 
-// メインビュー
-let view (model: Model) (dispatch: Msg -> unit) =
-    React.router
-        [ router.onUrlChanged (fun segments ->
-              console.log ("URL変更検出:", segments)
-              dispatch (UrlChanged segments))
-          router.children
-              [ Html.div
-                    [ prop.className "app-container"
-                      prop.children
-                          [ navigationView model dispatch
-                            Html.div
-                                [ prop.className "content"
-                                  prop.children
-                                      [ match model.CurrentPage with
-                                        | Home -> homeView
-                                        | Counter -> counterView model.CounterModel (CounterMsg >> dispatch)
-                                        | UserProfile _ ->
-                                            userProfileView model.UserProfileModel (UserProfileMsg >> dispatch) ] ]
-                            // CSS スタイル
-                            Html.style
-                                """
-                        .app-container { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-                        .navbar { background-color: #f0f0f0; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
-                        .nav-list { display: flex; list-style: none; padding: 0; margin: 0; }
-                        .nav-item { margin-right: 20px; }
-                        .nav-item a { text-decoration: none; color: #333; }
-                        .nav-item a:hover { text-decoration: underline; }
-                        .content { padding: 20px; background-color: #f9f9f9; border-radius: 5px; }
-                        .page { min-height: 200px; }
-                        button { margin: 0 5px; padding: 5px 10px; }
-                    """ ] ] ] ]
+                .page {
+                    min-height: 200px;
+                }
 
-// アプリケーションのエントリーポイント
-console.log ("アプリケーション開始")
+                button {
+                    margin: 0 5px;
+                    padding: 5px 10px;
+                }
+            """
+        ]
+    ]
+
+let view model dispatch =
+    RouterView model dispatch
 
 Program.mkProgram init update view
 |> Program.withReactSynchronous "elmish-app"
 |> Program.withConsoleTrace
 |> Program.run
-
-console.log ("Program.run完了")
