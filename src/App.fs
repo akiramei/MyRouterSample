@@ -3,6 +3,7 @@ module App
 open Elmish
 open Elmish.React
 open Feliz
+open Feliz.DaisyUI
 open Feliz.Router
 
 // Types
@@ -122,68 +123,131 @@ module Components =
     let Navigation (currentUrl: string list) =
         let isActive = Router.getActiveClass currentUrl
         
-        Html.nav [
-            prop.className "navbar"
+        Daisy.navbar [
+            prop.className "mb-4 shadow-lg bg-base-200 rounded-box"
             prop.children [
-                Html.ul [
-                    prop.className "nav-list"
+                Html.div [
+                    prop.className "flex-1 px-2"
                     prop.children [
-                        NavItem "" "Home" (isActive "")
-                        NavItem "counter" "Counter" (isActive "counter")
-                        NavItem "user/john" "John's Profile" (isActive "user/john")
-                        NavItem "user/alice" "Alice's Profile" (isActive "user/alice")
+                        Html.ul [
+                            prop.className "menu menu-horizontal px-1"
+                            prop.children [
+                                NavItem "" "Home" (isActive "")
+                                NavItem "counter" "Counter" (isActive "counter")
+                                NavItem "user/john" "John's Profile" (isActive "user/john")
+                                NavItem "user/alice" "Alice's Profile" (isActive "user/alice")
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+    [<ReactComponent>]
+    let HomePage () =
+        Daisy.hero [
+            prop.className "bg-primary rounded-box"
+            prop.children [
+                Daisy.heroContent [
+                    prop.className "text-center"
+                    prop.children [
+                        Html.h1 [
+                            prop.className "text-4xl font-bold text-primary-content" // テキスト色を背景色に合わせたコントラストの高い色に変更
+                            prop.text "Home"
+                        ]
+                        Html.p [
+                            prop.className "py-6 text-primary-content" // テキスト色を背景色に合わせたコントラストの高い色に変更
+                            prop.text "Welcome to the Elmish Router Sample App"
+                        ]
                     ]
                 ]
             ]
         ]
     
     [<ReactComponent>]
-    let HomePage () =
-        Html.div [
-            prop.className "page"
-            prop.children [
-                Html.h1 "Home"
-                Html.p "Welcome to the Elmish Router Sample App"
-            ]
-        ]
-    
-    [<ReactComponent>]
     let CounterPage (model: CounterModel) (dispatch: CounterMsg -> unit) =
-        Html.div [
-            prop.className "page"
+        Daisy.card [
+            prop.className "shadow-lg bg-base-100 border"
             prop.children [
-                Html.h1 "Counter"
-                Html.p (sprintf "Current count: %d" model.Count)
-                Html.button [
-                    prop.onClick (fun _ -> dispatch Increment)
-                    prop.text "+"
-                ]
-                Html.button [
-                    prop.onClick (fun _ -> dispatch Decrement)
-                    prop.text "-"
+                Daisy.cardBody [
+                    Html.h2 [
+                        prop.className "card-title"
+                        prop.text "Counter"
+                    ]
+                    Html.p [
+                        prop.className "py-4"
+                        prop.text (sprintf "Current count: %d" model.Count)
+                    ]
+                    Daisy.cardActions [
+                        Html.div [
+                            Daisy.join [
+                                Daisy.button.button [
+                                    prop.className "btn-primary btn-outline"
+                                    join.item
+                                    prop.onClick (fun _ -> dispatch Increment)
+                                    prop.text "+"
+                                ]
+                                Daisy.button.button [
+                                    prop.className "btn-secondary btn-outline"
+                                    join.item
+                                    prop.onClick (fun _ -> dispatch Decrement)
+                                    prop.text "-"
+                                ]
+                            ]
+                        ]
+                    ]
                 ]
             ]
         ]
     
     [<ReactComponent>]
     let UserProfilePage (username: string) (isLoading: bool) =
-        Html.div [
-            prop.className "page"
+        Daisy.card [
+            prop.className "shadow-lg bg-base-100 border"
             prop.children [
-                Html.h1 (sprintf "%s's Profile" username)
-                if isLoading then
-                    Html.p "Loading..."
-                else
-                    Html.p (sprintf "Username: %s" username)
+                Daisy.cardBody [
+                    Html.h2 [
+                        prop.className "card-title"
+                        prop.text (sprintf "%s's Profile" username)
+                    ]
+                    
+                    if isLoading then
+                        Html.div [
+                            prop.className "flex justify-center py-4"
+                            prop.children [
+                                Daisy.loading [
+                                    prop.className "loading-spinner loading-lg"
+                                ]
+                            ]
+                        ]
+                    else
+                        Html.p [
+                            prop.className "py-4"
+                            prop.text (sprintf "Username: %s" username)
+                        ]
+                ]
             ]
         ]
     
     [<ReactComponent>]
     let NotFoundPage () =
-        Html.div [
-            prop.className "page"
+        Daisy.card [
+            prop.className "shadow-lg bg-base-100 border image-full"
             prop.children [
-                Html.h1 "Not Found"
+                Daisy.cardBody [
+                    Html.h2 [
+                        prop.className "card-title text-error"
+                        prop.text "Not Found"
+                    ]
+                    Html.p [
+                        prop.text "The page you're looking for doesn't exist."
+                    ]
+                    Daisy.button.a [
+                        prop.className "btn-primary"
+                        prop.href "#/"
+                        prop.text "Go Home"
+                    ]
+                ]
             ]
         ]
     
@@ -212,15 +276,18 @@ module Components =
             ]
         ]
 
-// スタイルモジュールは削除（外部CSSファイルを使用するため）
-
 // Main view
 let view (model: Types.Model) (dispatch: Types.Msg -> unit) =
     Html.div [
-        prop.className "app-container"
+        prop.className "min-h-screen bg-base-300"
         prop.children [
-            Components.Navigation model.CurrentUrl
-            Components.MainContent model dispatch
+            Html.div [
+                prop.className "container mx-auto px-4 py-6"
+                prop.children [
+                    Components.Navigation model.CurrentUrl
+                    Components.MainContent model dispatch
+                ]
+            ]
         ]
     ]
 
