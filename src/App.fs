@@ -129,8 +129,8 @@ module Components =
                 Html.div [
                     prop.className "flex-1 px-2"
                     prop.children [
-                        Html.ul [
-                            prop.className "menu menu-horizontal px-1"
+                        Daisy.menu [
+                            prop.className "menu-horizontal px-1"
                             prop.children [
                                 NavItem "" "Home" (isActive "")
                                 NavItem "counter" "Counter" (isActive "counter")
