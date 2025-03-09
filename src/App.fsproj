@@ -10,16 +10,20 @@
         
         <!-- Domain -->
         <Compile Include="Domain/ValueObjects/Types.fs" />
+        <Compile Include="Domain/ValueObjects/User.fs" />
         <Compile Include="Domain/Errors/AppError.fs" />
         
         <!-- Shared -->
+        <Compile Include="Shared/I18n/Resources.fs" />
         
         <!-- UI -->
-        <Compile Include="UI/Services/Router.fs" />
         <Compile Include="UI/State/Types.fs" />
+        <Compile Include="UI/Services/Router.fs" />
         <Compile Include="UI/State/AppState.fs" />
         <Compile Include="UI/Components/Atoms/NavItem.fs" />
         <Compile Include="UI/Components/Molecules/Navigation.fs" />
+        <Compile Include="UI/Components/Templates/Layouts.fs" />
+        <Compile Include="UI/Pages/LoginPage.fs" />
         <Compile Include="UI/Pages/HomePage.fs" />
         <Compile Include="UI/Pages/CounterPage.fs" />
         <Compile Include="UI/Pages/UserProfilePage.fs" />

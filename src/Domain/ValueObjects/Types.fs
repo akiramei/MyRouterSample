@@ -2,9 +2,8 @@ namespace Domain.ValueObjects
 
 /// Core domain types and models
 module Types =
-
-    // Core domain types
     type Page =
+        | Login
         | Home
         | Counter
         | UserProfile of string
