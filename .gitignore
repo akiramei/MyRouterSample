@@ -177,6 +177,7 @@ docs/output/
 
 # Temp folder used for publishing docs
 temp*/
+!src/ui/components/templates/
 
 # Test results produced by build
 TestResults.xml
