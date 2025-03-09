@@ -5,6 +5,26 @@
     </PropertyGroup>
     <ItemGroup>
         <None Include="index.html" />
+        <None Include="styles.css" />
+        <None Include="../tailwind.config.js" />
+        
+        <!-- Domain -->
+        <Compile Include="Domain/ValueObjects/Types.fs" />
+        <Compile Include="Domain/Errors/AppError.fs" />
+        
+        <!-- Shared -->
+        
+        <!-- UI -->
+        <Compile Include="UI/Services/Router.fs" />
+        <Compile Include="UI/State/Types.fs" />
+        <Compile Include="UI/State/AppState.fs" />
+        <Compile Include="UI/Components/Atoms/NavItem.fs" />
+        <Compile Include="UI/Components/Molecules/Navigation.fs" />
+        <Compile Include="UI/Pages/HomePage.fs" />
+        <Compile Include="UI/Pages/CounterPage.fs" />
+        <Compile Include="UI/Pages/UserProfilePage.fs" />
+        <Compile Include="UI/Pages/NotFoundPage.fs" />
+        <Compile Include="UI/Components/Templates/MainLayout.fs" />
         <Compile Include="App.fs" />
     </ItemGroup>
     <ItemGroup>
