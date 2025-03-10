@@ -16,6 +16,11 @@
         <!-- Domain -->
         <Compile Include="Domain/ValueObjects/Types.fs" />
         <Compile Include="Domain/ValueObjects/User.fs" />
+        
+        <!-- Domain Errors - 新しいエラー処理戦略 -->
+        <Compile Include="Domain/Errors/ErrorTypes.fs" />
+        <Compile Include="Domain/Errors/ErrorHelpers.fs" />
+        <Compile Include="Domain/Errors/Railway.fs" />
         <Compile Include="Domain/Errors/AppError.fs" />
         
         <!-- Shared -->
@@ -23,11 +28,13 @@
         
         <!-- UI State Types -->
         <Compile Include="UI/State/Types.fs" />
+        <Compile Include="UI/State/ErrorHandling.fs" />
         
         <!-- UI Services -->
         <Compile Include="UI/Services/RouteService.fs" />
         
         <!-- UI Components -->
+        <Compile Include="UI/Components/Atoms/ErrorDisplay.fs" />
         <Compile Include="UI/Components/Atoms/NavItem.fs" />
         <Compile Include="UI/Components/Molecules/Navigation.fs" />
         <Compile Include="UI/Components/Templates/Layouts.fs" />

@@ -24,7 +24,7 @@ module AppRouter =
                     match model.CurrentPage with
                     | Login ->
                         // 未認証レイアウト（ナビゲーションなし）
-                        Layouts.UnauthenticatedLayout pageContent
+                        Layouts.UnauthenticatedLayout model dispatch pageContent
                     | _ ->
                         // 認証済みレイアウト（ナビゲーションあり）
-                        Layouts.AuthenticatedLayout model dispatch pageContent ] ]
+                        Layouts.AuthenticatedLayout model dispatch pageContent ] ] 

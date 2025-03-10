@@ -5,6 +5,7 @@ open Feliz.DaisyUI
 open Domain.ValueObjects.User
 open UI.State.Types
 open Shared.I18n.TranslationService
+open Domain.Errors
 
 /// Login page component
 module LoginPage =
@@ -38,7 +39,7 @@ module LoginPage =
                                                                   [ prop.className "text-2xl font-bold text-center"
                                                                     prop.text (getText Login) ]
 
-                                                              // エラーメッセージ表示
+                                                              // エラーメッセージ表示（モデル固有のエラー）
                                                               match model.ErrorMessage with
                                                               | Some errorKey ->
                                                                   Daisy.alert
@@ -46,6 +47,27 @@ module LoginPage =
                                                                         prop.className "mt-4"
                                                                         prop.children
                                                                             [ Html.span [ prop.text (getText errorKey) ] ] ]
+                                                              | None -> Html.none
+
+                                                              // Railway Oriented Programming エラー表示
+                                                              match model.Error with
+                                                              | Some error ->
+                                                                  let errorMsg = ErrorHelpers.toUserMessage error
+                                                                  Daisy.alert
+                                                                      [ alert.error
+                                                                        prop.className "mt-4"
+                                                                        prop.children
+                                                                            [ Html.div
+                                                                                [ prop.className "flex justify-between items-center"
+                                                                                  prop.children
+                                                                                      [ Html.span [ prop.text errorMsg ]
+                                                                                        Html.span
+                                                                                            [ prop.className "text-xs opacity-70"
+                                                                                              prop.text
+                                                                                                  (sprintf
+                                                                                                      "エラーコード: %s"
+                                                                                                      (ErrorHelpers.toErrorCode
+                                                                                                          error)) ] ] ] ] ]
                                                               | None -> Html.none
 
                                                               Html.form
