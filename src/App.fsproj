@@ -16,19 +16,32 @@
         <!-- Shared -->
         <Compile Include="Shared/I18n/Resources.fs" />
         
-        <!-- UI -->
+        <!-- UI State Types -->
         <Compile Include="UI/State/Types.fs" />
-        <Compile Include="UI/Services/Router.fs" />
-        <Compile Include="UI/State/AppState.fs" />
+        
+        <!-- UI Services -->
+        <Compile Include="UI/Services/RouteService.fs" />
+        
+        <!-- UI Components -->
         <Compile Include="UI/Components/Atoms/NavItem.fs" />
         <Compile Include="UI/Components/Molecules/Navigation.fs" />
         <Compile Include="UI/Components/Templates/Layouts.fs" />
+        
+        <!-- UI Pages -->
         <Compile Include="UI/Pages/LoginPage.fs" />
         <Compile Include="UI/Pages/HomePage.fs" />
         <Compile Include="UI/Pages/CounterPage.fs" />
         <Compile Include="UI/Pages/UserProfilePage.fs" />
         <Compile Include="UI/Pages/NotFoundPage.fs" />
-        <Compile Include="UI/Components/Templates/MainLayout.fs" />
+        
+        <!-- Routing -->
+        <Compile Include="UI/Routing/PageRouter.fs" />
+        <Compile Include="UI/Routing/AppRouter.fs" />
+        
+        <!-- State Logic -->
+        <Compile Include="UI/State/AppState.fs" />
+        
+        <!-- App Entry Point -->
         <Compile Include="App.fs" />
     </ItemGroup>
     <ItemGroup>

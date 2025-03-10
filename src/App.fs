@@ -4,13 +4,13 @@ open Elmish
 open Elmish.React
 open UI.State.Types
 open UI.State
-open UI.Components.Templates
+open UI.Routing.AppRouter
 
 // Program entry point
 let main =
-    Program.mkProgram AppState.init AppState.update MainLayout.MainLayout
+    Program.mkProgram AppState.init AppState.update AppRouter
     |> Program.withReactSynchronous "elmish-app"
-    #if DEBUG
+#if DEBUG
     |> Program.withConsoleTrace
-    #endif
+#endif
     |> Program.run
