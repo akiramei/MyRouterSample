@@ -53,11 +53,11 @@ module AppState =
             // バリデーション確認
             if System.String.IsNullOrWhiteSpace model.Username then
                 { model with
-                    ErrorMessage = Some Shared.I18n.Resources.UsernameRequired },
+                    ErrorMessage = Some Shared.I18n.TranslationService.UsernameRequired },
                 Cmd.none
             elif System.String.IsNullOrWhiteSpace model.Password then
                 { model with
-                    ErrorMessage = Some Shared.I18n.Resources.PasswordRequired },
+                    ErrorMessage = Some Shared.I18n.TranslationService.PasswordRequired },
                 Cmd.none
             else
                 let userProfile: Domain.ValueObjects.User.UserProfile =
@@ -69,7 +69,7 @@ module AppState =
         | LoginSuccess _ -> { model with ErrorMessage = None }, Cmd.none
         | LoginFailed _ ->
             { model with
-                ErrorMessage = Some Shared.I18n.Resources.ValidationError },
+                ErrorMessage = Some Shared.I18n.TranslationService.ValidationError },
             Cmd.none
 
     let update msg model =

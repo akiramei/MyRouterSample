@@ -8,13 +8,18 @@
         <None Include="styles.css" />
         <None Include="../tailwind.config.js" />
         
+        <!-- I18n Resources -->
+        <None Include="Shared/I18n/translations.csv">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        
         <!-- Domain -->
         <Compile Include="Domain/ValueObjects/Types.fs" />
         <Compile Include="Domain/ValueObjects/User.fs" />
         <Compile Include="Domain/Errors/AppError.fs" />
         
         <!-- Shared -->
-        <Compile Include="Shared/I18n/Resources.fs" />
+        <Compile Include="Shared/I18n/TranslationService.fs" />
         
         <!-- UI State Types -->
         <Compile Include="UI/State/Types.fs" />
@@ -47,6 +52,7 @@
     <ItemGroup>
         <PackageReference Include="Elmish" Version="4.2.0" />
         <PackageReference Include="Fable.Elmish.React" Version="4.0.0" />
+        <PackageReference Include="Fable.SimpleHttp" Version="3.6.0" />
         <PackageReference Include="Feliz" Version="2.9.0" />
         <PackageReference Include="Feliz.Router" Version="4.0.0" />
         <PackageReference Include="Feliz.DaisyUI" Version="5.0.0" />

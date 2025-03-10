@@ -5,7 +5,8 @@ open Feliz.DaisyUI
 open Domain.ValueObjects.User
 open UI.Services.RouteService
 open UI.Components.Atoms.NavItem
-open Shared.I18n.Resources
+open Shared.I18n.TranslationService
+open Shared.I18n
 
 /// Navigation bar component
 module Navigation =

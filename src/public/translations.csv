@@ -1,0 +1,15 @@
+key,en,ja
+Login,Login,ログイン
+Username,Username,ユーザー名
+Password,Password,パスワード
+Language,Language,言語
+Submit,Login,ログイン
+Welcome,Welcome,ようこそ
+Logout,Logout,ログアウト
+Home,Home,家
+Counter,Counter,カウンター
+Profile,Profile,プロフィール
+ValidationError,Validation Error,入力エラー
+UsernameRequired,Username is required,ユーザー名は必須です
+PasswordRequired,Password is required,パスワードは必須です
+LanguageRequired,Please select a language,言語を選択してください
