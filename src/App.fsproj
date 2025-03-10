@@ -21,7 +21,6 @@
         <Compile Include="Domain/Errors/ErrorTypes.fs" />
         <Compile Include="Domain/Errors/ErrorHelpers.fs" />
         <Compile Include="Domain/Errors/Railway.fs" />
-        <Compile Include="Domain/Errors/AppError.fs" />
         
         <!-- Shared -->
         <Compile Include="Shared/I18n/TranslationService.fs" />
