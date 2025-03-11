@@ -27,6 +27,15 @@ module TranslationService =
         | UsernameRequired
         | PasswordRequired
         | LanguageRequired
+        // 新規追加のエラーメッセージキー
+        | ErrorFieldRequired
+        | ErrorFieldMinLength
+        | ErrorEntityNotFound
+        | ErrorNetworkConnection
+        | ErrorAuthenticationFailed
+        | ErrorAuthorizationDenied
+        | ErrorSystemGeneric
+        | ErrorUnknown
 
     /// 内部使用のデフォルトリソース
     module private DefaultResources =
@@ -101,6 +110,15 @@ module TranslationService =
         | "UsernameRequired" -> Some ResourceKey.UsernameRequired
         | "PasswordRequired" -> Some ResourceKey.PasswordRequired
         | "LanguageRequired" -> Some ResourceKey.LanguageRequired
+        // 新規追加のキー
+        | "error.field.required" -> Some ResourceKey.ErrorFieldRequired
+        | "error.field.min.length" -> Some ResourceKey.ErrorFieldMinLength
+        | "error.entity.not.found" -> Some ResourceKey.ErrorEntityNotFound
+        | "error.network.connection" -> Some ResourceKey.ErrorNetworkConnection
+        | "error.authentication.failed" -> Some ResourceKey.ErrorAuthenticationFailed
+        | "error.authorization.denied" -> Some ResourceKey.ErrorAuthorizationDenied
+        | "error.system.generic" -> Some ResourceKey.ErrorSystemGeneric
+        | "error.unknown" -> Some ResourceKey.ErrorUnknown
         | _ -> None
 
     // CSVを解析して翻訳辞書にロードする

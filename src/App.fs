@@ -2,7 +2,7 @@ module App
 
 open Elmish
 open Elmish.React
-open UI.State.Types
+open UI.State.Messages
 open UI.State
 open UI.Routing.AppRouter
 open Shared.I18n.TranslationService
@@ -14,7 +14,7 @@ loadTranslationsFromFile () |> ignore
 
 // Program entry point
 let main =
-    Program.mkProgram AppState.init AppState.update AppRouter
+    Program.mkProgram AppState.init AppStateUpdate.update AppRouter
     |> Program.withReactSynchronous "elmish-app"
 #if DEBUG
     |> Program.withConsoleTrace

@@ -11,50 +11,59 @@ module ErrorTranslationService =
     /// インフラストラクチャエラーをドメインエラーに変換
     let translateInfrastructureError (error: InfrastructureError) : IError =
         match error.Details with
-        | NetworkError message ->
-            ErrorHelpers.asDomainError
-                (BusinessRuleViolation("connection", "サーバーに接続できません"))
-                (Some(Map [ "original_error", message; "category", "infrastructure" ]))
+        | NetworkError(endpoint, message) ->
+            ErrorHelpers.businessRuleWithParams
+                "connectivity"
+                "error.network.connection"
+                (Map [ ("endpoint", endpoint); ("message", message) ])
 
         | AuthenticationError message ->
-            ErrorHelpers.asDomainError
-                (BusinessRuleViolation("authentication", "認証に失敗しました"))
-                (Some(Map [ "original_error", message; "category", "infrastructure" ]))
+            ErrorHelpers.businessRuleWithParams
+                "authentication"
+                "error.authentication.failed"
+                (Map [ ("message", message) ])
 
-        | AuthorizationError message ->
-            ErrorHelpers.asDomainError
-                (BusinessRuleViolation("authorization", "権限がありません"))
-                (Some(Map [ "original_error", message; "category", "infrastructure" ]))
+        | AuthorizationError(resource, action) ->
+            ErrorHelpers.businessRuleWithParams
+                "authorization"
+                "error.authorization.denied"
+                (Map [ ("resource", resource); ("action", action) ])
 
-        | SystemError message ->
-            ErrorHelpers.asDomainError
-                (BusinessRuleViolation("system", "システムエラーが発生しました"))
-                (Some(Map [ "original_error", message; "category", "infrastructure" ]))
+        | SystemError(code, message) ->
+            ErrorHelpers.businessRuleWithParams
+                "system"
+                "error.system.generic"
+                (Map [ ("code", code); ("message", message) ])
 
     /// UIエラーをドメインエラーに変換
     let translateUIError (error: UIError) : IError =
         match error.Details with
         | MissingInput field ->
-            ErrorHelpers.asDomainError
-                (ValidationError(field, sprintf "%sは必須です" field))
-                (Some(Map [ "category", "ui" ]))
+            ErrorHelpers.validationWithParams field "error.field.required" (Map [ ("field", field) ])
 
         | InvalidSelection selection ->
-            ErrorHelpers.asDomainError
-                (ValidationError("selection", sprintf "選択された値 '%s' は無効です" selection))
-                (Some(Map [ "category", "ui" ]))
+            ErrorHelpers.validationWithParams "selection" "error.invalid.selection" (Map [ ("selection", selection) ])
 
-        | FormError message ->
-            ErrorHelpers.asDomainError (ValidationError("form", message)) (Some(Map [ "category", "ui" ]))
+        | FormError(messageKey, params) -> ErrorHelpers.validationWithParams "form" messageKey params
 
     /// 任意のエラーをドメインエラーに変換
     let translateToDomainError (error: IError) : IError =
         match error with
-        | :? DomainError -> error // 既にドメインエラーの場合はそのまま返す
-        | :? InfrastructureError as infraError -> translateInfrastructureError infraError
-        | :? UIError as uiError -> translateUIError uiError
+        | :? DomainError ->
+            // すでにドメインエラーの場合はそのまま返す
+            error
+
+        | :? InfrastructureError as infraError ->
+            // インフラエラーをドメインエラーに変換
+            translateInfrastructureError infraError
+
+        | :? UIError as uiError ->
+            // UIエラーをドメインエラーに変換
+            translateUIError uiError
+
         | _ ->
-            // 未知のエラー型の場合は汎用的なドメインエラーに変換
-            ErrorHelpers.asDomainError
-                (BusinessRuleViolation("unknown", "不明なエラーが発生しました"))
-                (Some(Map [ "original_category", error.Category; "original_code", error.Code ]))
+            // 未知のエラー型の場合は汎用的なエラーに変換
+            ErrorHelpers.businessRuleWithParams
+                "unknown"
+                "error.unknown"
+                (Map [ ("code", error.Code); ("message", error.MessageKey) ])

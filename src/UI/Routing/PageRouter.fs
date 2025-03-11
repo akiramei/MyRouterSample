@@ -2,7 +2,8 @@ namespace UI.Routing
 
 open Feliz
 open Domain.ValueObjects.Types
-open UI.State.Types
+open UI.State.ViewModels
+open UI.State.Messages
 open UI.Pages.HomePage
 open UI.Pages.CounterPage
 open UI.Pages.UserProfilePage
@@ -13,22 +14,21 @@ open UI.Pages.LoginPage
 /// ページコンテンツの選択のみを担当し、レイアウトには関与しない
 module PageRouter =
     [<ReactComponent>]
-    let PageContent (model: Model) (dispatch: Msg -> unit) =
-        // プロファイル読み込み処理をuseCallbackでメモ化
-        let checkAndLoadProfile =
-            React.useCallback (
-                (fun username ->
-                    if model.UserProfile.Username <> username then
-                        dispatch (UserProfileMsg(LoadUserData username))),
-                [| model.UserProfile.Username :> obj |]
-            )
-
+    let PageContent (state: ApplicationState) (dispatch: AppMsg -> unit) =
         // 現在のページに基づいて適切なページコンポーネントを返す
-        match model.CurrentPage with
-        | Login -> LoginPage model.Login (fun msg -> dispatch (LoginMsg msg))
+        match state.CurrentPage with
+        | Login -> LoginPage state.LoginPage (LoginMsg >> dispatch)
+
         | Home -> HomePage()
-        | Counter -> CounterPage model.Counter (fun msg -> dispatch (CounterMsg msg))
-        | UserProfile username ->
-            checkAndLoadProfile (username)
-            UserProfilePage username model.UserProfile.IsLoading
+
+        | Counter -> CounterPage state.CounterPage.Count (CounterMsg >> dispatch)
+
+        | UserProfile userId ->
+            // ユーザープロファイルページの表示
+            // ユーザーIDが変わった場合のみデータを読み込む
+            if state.UserProfilePage.UserId <> Some userId then
+                dispatch (UserProfileMsg(LoadUserData userId))
+
+            UserProfilePage userId state.UserProfilePage.IsLoading
+
         | NotFound -> NotFoundPage()

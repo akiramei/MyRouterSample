@@ -2,7 +2,6 @@ namespace UI.State
 
 open Domain.ValueObjects.Types
 open Domain.ValueObjects.User
-open Shared.I18n.TranslationService
 open Domain.Errors
 
 /// Application state and message types
@@ -16,8 +15,8 @@ module Types =
         { Username: string
           Password: string
           Language: Language
-          ErrorMessage: ResourceKey option
-          // 新しいエラー処理用のフィールド - IErrorインターフェースを使用
+          ErrorMessage: Shared.I18n.TranslationService.ResourceKey option
+          // エラー処理用のフィールド
           Error: IError option }
 
     type Model =
@@ -46,7 +45,7 @@ module Types =
         | LoadUserData of string
         | UserDataLoaded
         | UserDataError of IError
-        | ShowUserProfileError of string
+        | ShowUserProfileError of string // ユーザープロファイル用のエラー表示
 
     type Msg =
         | LoginMsg of LoginMsg

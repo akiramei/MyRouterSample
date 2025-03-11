@@ -6,7 +6,7 @@ open Domain.Errors
 type UIErrorDetails =
     | MissingInput of fieldName: string
     | InvalidSelection of selection: string
-    | FormError of message: string
+    | FormError of messageKey: string * parameters: Map<string, string>
 
 /// UI層のエラー実装
 type UIError =
@@ -14,19 +14,23 @@ type UIError =
       ErrorContext: Map<string, string> option }
 
     interface IError with
-        member this.Category = "UI"
-
         member this.Code =
             match this.Details with
             | MissingInput _ -> "UI-MI-001"
             | InvalidSelection _ -> "UI-IS-001"
             | FormError _ -> "UI-FRM-001"
 
-        member this.UserMessage =
+        member this.MessageKey =
             match this.Details with
-            | MissingInput field -> sprintf "%s は必須です" field
-            | InvalidSelection selection -> sprintf "選択された値 '%s' は無効です" selection
-            | FormError message -> sprintf "フォームエラー: %s" message
+            | MissingInput _ -> "error.field.required"
+            | InvalidSelection _ -> "error.invalid.selection"
+            | FormError(key, _) -> key
+
+        member this.MessageParams =
+            match this.Details with
+            | MissingInput field -> Map [ ("field", field) ]
+            | InvalidSelection selection -> Map [ ("selection", selection) ]
+            | FormError(_, params) -> params
 
         member this.Context = this.ErrorContext
 
@@ -37,3 +41,24 @@ type UIError =
                 | None -> Some contextMap
 
             { this with ErrorContext = newContext } :> IError
+
+/// UIエラー操作のためのヘルパー関数
+module UIErrorHelpers =
+
+    /// 必須フィールドのエラーを作成
+    let missingInput fieldName : IError =
+        { UIError.Details = MissingInput fieldName
+          ErrorContext = None }
+        :> IError
+
+    /// 無効な選択のエラーを作成
+    let invalidSelection selection : IError =
+        { UIError.Details = InvalidSelection selection
+          ErrorContext = None }
+        :> IError
+
+    /// フォームエラーを作成
+    let formError messageKey parameters : IError =
+        { UIError.Details = FormError(messageKey, parameters)
+          ErrorContext = None }
+        :> IError

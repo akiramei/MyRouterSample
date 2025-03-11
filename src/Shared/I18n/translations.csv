@@ -13,3 +13,11 @@ ValidationError,Validation Error,入力エラー
 UsernameRequired,Username is required,ユーザー名は必須です
 PasswordRequired,Password is required,パスワードは必須です
 LanguageRequired,Please select a language,言語を選択してください
+error.field.required,{field} is required,{field}は必須です
+error.field.min.length,{field} must be at least {min} characters,{field}は{min}文字以上必要です
+error.entity.not.found,{entity} with ID {id} was not found,ID {id}の{entity}は見つかりませんでした
+error.network.connection,Network error: {message},ネットワークエラー: {message}
+error.authentication.failed,Authentication failed: {message},認証エラー: {message}
+error.authorization.denied,You don't have permission to {action} this {resource},この{resource}を{action}する権限がありません
+error.system.generic,System error occurred: {message},システムエラーが発生しました: {message}
+error.unknown,An unknown error occurred,不明なエラーが発生しました
