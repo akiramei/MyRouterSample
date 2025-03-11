@@ -7,19 +7,18 @@ open Domain.Errors
 
 /// Application state and message types
 module Types =
-    // エラー表示用のメッセージ型を追加
-    type ErrorDisplay = {
-        IsVisible: bool
-        Message: string option
-    }
+    // エラー表示用のメッセージ型
+    type ErrorDisplay =
+        { IsVisible: bool
+          Message: string option }
 
     type LoginModel =
         { Username: string
           Password: string
           Language: Language
           ErrorMessage: ResourceKey option
-          // 新しいエラー処理用のフィールド
-          Error: Error option }
+          // 新しいエラー処理用のフィールド - IErrorインターフェースを使用
+          Error: IError option }
 
     type Model =
         { Counter: CounterModel
@@ -37,7 +36,7 @@ module Types =
         | SetLanguage of Language
         | LoginSubmit
         | LoginSuccess of UserProfile
-        | LoginFailed of Error
+        | LoginFailed of IError
 
     type CounterMsg =
         | Increment
@@ -46,8 +45,8 @@ module Types =
     type UserProfileMsg =
         | LoadUserData of string
         | UserDataLoaded
-        | UserDataError of Error
-        | ShowUserProfileError of string // 追加：ユーザープロファイル用のエラー表示
+        | UserDataError of IError
+        | ShowUserProfileError of string
 
     type Msg =
         | LoginMsg of LoginMsg
@@ -55,6 +54,5 @@ module Types =
         | UserProfileMsg of UserProfileMsg
         | UrlChanged of string list
         | Logout
-        // エラー表示用のメッセージを追加
         | ShowError of string
         | ClearError

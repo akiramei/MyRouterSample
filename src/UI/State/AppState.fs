@@ -5,6 +5,8 @@ open Domain.ValueObjects.Types
 open UI.Services.RouteService
 open UI.State.Types
 open Domain.Errors
+open UI.Errors
+open Application.ErrorTranslation
 
 /// Main application state management
 module AppState =
@@ -49,9 +51,9 @@ module AppState =
             Cmd.ofMsg (UserDataLoaded)
         | UserDataLoaded -> { model with IsLoading = false }, Cmd.none
         | UserDataError error ->
-            // エラー処理の追加 - UserProfileMsg型のメッセージを返す
-            { model with IsLoading = false }, 
-            Cmd.ofMsg (ShowUserProfileError (ErrorHelpers.toUserMessage error))
+            // エラー処理の追加 - IError型のメッセージを返す
+            { model with IsLoading = false },
+            Cmd.ofMsg (ShowUserProfileError (ErrorTranslationService.translateToDomainError error).UserMessage)
         | ShowUserProfileError _ ->
             // プロファイル固有のエラー - この処理は上位のupdateで行う
             model, Cmd.none
@@ -60,20 +62,27 @@ module AppState =
         // Railway Oriented Programming パターンによるバリデーション
         let validateUsername (model: LoginModel) =
             if System.String.IsNullOrWhiteSpace model.Username then
-                let error = ErrorHelpers.asDomainError (ValidationError("username", "ユーザー名は必須です")) None
+                let error =
+                    { UIError.Details = MissingInput "username"
+                      ErrorContext = None }
+                    :> IError
+
                 Failure error
             else
                 Success model
-                
+
         let validatePassword (model: LoginModel) =
             if System.String.IsNullOrWhiteSpace model.Password then
-                let error = ErrorHelpers.asDomainError (ValidationError("password", "パスワードは必須です")) None
+                let error =
+                    { UIError.Details = MissingInput "password"
+                      ErrorContext = None }
+                    :> IError
+
                 Failure error
             else
                 Success model
-                
-        validateUsername model
-        |> Railway.bind validatePassword
+
+        validateUsername model |> Railway.bind validatePassword
 
     let updateLogin msg (model: LoginModel) =
         match msg with
@@ -89,25 +98,27 @@ module AppState =
                       Language = validModel.Language
                       IsAuthenticated = true }
 
-                { model with 
+                { model with
                     Error = None
-                    ErrorMessage = None }, 
+                    ErrorMessage = None },
                 Cmd.ofMsg (LoginSuccess userProfile)
             | Failure error ->
-                // エラー処理
-                { model with 
-                    Error = Some error
-                    ErrorMessage = UI.State.ErrorHandling.toResourceKey error }, 
-                Cmd.ofMsg (LoginFailed error)
-        | LoginSuccess _ -> 
-            { model with 
+                // エラー処理 - エラーをドメインエラーに変換
+                let domainError = ErrorTranslationService.translateToDomainError error
+
+                { model with
+                    Error = Some domainError
+                    ErrorMessage = ResourceKeyMapper.getErrorResourceKey domainError },
+                Cmd.ofMsg (LoginFailed domainError)
+        | LoginSuccess _ ->
+            { model with
                 Error = None
-                ErrorMessage = None }, 
+                ErrorMessage = None },
             Cmd.none
         | LoginFailed error ->
             { model with
                 Error = Some error
-                ErrorMessage = UI.State.ErrorHandling.toResourceKey error },
+                ErrorMessage = ResourceKeyMapper.getErrorResourceKey error },
             Cmd.none
 
     let update msg model =
@@ -125,14 +136,17 @@ module AppState =
                 cmd
             | LoginFailed error ->
                 let login, cmd = updateLogin loginMsg model.Login
-                let errorMessage = 
+
+                let errorMessage =
                     match model.CurrentUser with
-                    | Some user -> UI.State.ErrorHandling.getErrorMessage error user.Language
-                    | None -> ErrorHelpers.toUserMessage error
-                
-                { model with 
+                    | Some user -> ErrorHandling.getErrorMessage error user.Language
+                    | None -> error.UserMessage
+
+                { model with
                     Login = login
-                    ErrorDisplay = { IsVisible = true; Message = Some errorMessage } }, 
+                    ErrorDisplay =
+                        { IsVisible = true
+                          Message = Some errorMessage } },
                 Cmd.batch [ Cmd.map LoginMsg cmd ]
             | _ ->
                 let login, cmd = updateLogin loginMsg model.Login
@@ -150,17 +164,19 @@ module AppState =
             | None -> model, navigateCmd ""
             | Some _ ->
                 let profile, cmd = updateUserProfile profileMsg model.UserProfile
-                
+
                 // ShowUserProfileErrorメッセージの場合、グローバルエラーも設定
                 let (newModel, globalCmd) =
                     match profileMsg with
                     | ShowUserProfileError errorMessage ->
-                        { model with ErrorDisplay = { IsVisible = true; Message = Some errorMessage } },
+                        { model with
+                            ErrorDisplay =
+                                { IsVisible = true
+                                  Message = Some errorMessage } },
                         Cmd.ofMsg (ShowError errorMessage)
                     | _ -> model, Cmd.none
-                
-                { newModel with UserProfile = profile }, 
-                Cmd.batch [ Cmd.map UserProfileMsg cmd; globalCmd ]
+
+                { newModel with UserProfile = profile }, Cmd.batch [ Cmd.map UserProfileMsg cmd; globalCmd ]
         | UrlChanged newUrl ->
             let newPage = parseUrl newUrl
 
@@ -189,7 +205,9 @@ module AppState =
             navigateCmd ""
         | ShowError message ->
             { model with
-                ErrorDisplay = { IsVisible = true; Message = Some message } },
+                ErrorDisplay =
+                    { IsVisible = true
+                      Message = Some message } },
             Cmd.none
         | ClearError ->
             { model with

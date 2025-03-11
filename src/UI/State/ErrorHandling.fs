@@ -3,57 +3,39 @@ namespace UI.State
 open Elmish
 open Domain.Errors
 open Domain.ValueObjects.User
+open Application.ErrorTranslation
 
 /// UI層のエラーハンドリング
 module ErrorHandling =
     open Shared.I18n.TranslationService
-    
+
     /// エラー型から翻訳リソースキーへの変換
-    let toResourceKey (error: Error) =
-        match error.Category with
-        | DomainError ->
-            match error.Details with
-            | :? DomainErrorDetails as details ->
-                match details with
-                // 完全修飾名を使用して名前空間の衝突を回避
-                | Domain.Errors.ValidationError (field, _) -> 
-                    match field.ToLower() with
-                    | "username" -> Some Shared.I18n.TranslationService.UsernameRequired
-                    | "password" -> Some Shared.I18n.TranslationService.PasswordRequired
-                    | "language" -> Some Shared.I18n.TranslationService.LanguageRequired
-                    | _ -> Some Shared.I18n.TranslationService.ValidationError
-                | _ -> None
-            | _ -> None
-        | UIError ->
-            match error.Details with
-            | :? UIErrorDetails as details ->
-                match details with
-                | MissingInput field -> 
-                    match field.ToLower() with
-                    | "username" -> Some Shared.I18n.TranslationService.UsernameRequired
-                    | "password" -> Some Shared.I18n.TranslationService.PasswordRequired
-                    | "language" -> Some Shared.I18n.TranslationService.LanguageRequired
-                    | _ -> Some Shared.I18n.TranslationService.ValidationError
-                | _ -> None
-            | _ -> None
-        | _ -> None
-    
+    let toResourceKey (error: IError) =
+        ResourceKeyMapper.getErrorResourceKey error
+
     /// エラーメッセージを多言語対応で取得
-    let getErrorMessage (error: Error) (language: Language) =
+    let getErrorMessage (error: IError) (language: Language) =
         match toResourceKey error with
         | Some resourceKey -> getText language resourceKey
-        | None -> ErrorHelpers.toUserMessage error
-        
+        | None -> error.UserMessage
+
     /// UIイベントハンドラ用のエラー処理
-    let handleError (error: Error) (language: Language) (dispatch: Types.Msg -> unit) =
-        let message = getErrorMessage error language
-        match error.Category with
-        | DomainError | UIError ->
-            // UI関連エラーの場合はユーザーにメッセージを表示
+    let handleError (error: IError) (language: Language) (dispatch: Types.Msg -> unit) =
+        // まずドメインエラーに変換する
+        let domainError = ErrorTranslationService.translateToDomainError error
+        let message = getErrorMessage domainError language
+
+        // エラーカテゴリに基づいて処理を分岐
+        match domainError.Category with
+        | "Domain" ->
+            // ドメイン層のエラーはユーザーに表示
             dispatch (Types.ShowError message)
-        | InfrastructureError ->
-            // インフラエラーの場合はログに記録し、必要に応じて別の処理
-            #if DEBUG
-            Browser.Dom.console.error($"システムエラー: {message}")
-            #endif
+        | "Infrastructure" ->
+            // インフラエラーの場合はログに記録し、ユーザーフレンドリーなメッセージを表示
+#if DEBUG
+            Browser.Dom.console.error (sprintf "システムエラー: %s" domainError.UserMessage)
+#endif
             dispatch (Types.ShowError "システムエラーが発生しました。管理者に連絡してください。")
+        | _ ->
+            // その他のエラー
+            dispatch (Types.ShowError message)

@@ -22,9 +22,21 @@
         <Compile Include="Domain/Errors/ErrorHelpers.fs" />
         <Compile Include="Domain/Errors/Railway.fs" />
         
-        <!-- Shared -->
+        <!-- UI Errors -->
+        <Compile Include="UI/Errors/UIErrors.fs" />
+        <Compile Include="UI/Errors/UIErrorHelpers.fs" />
+        
+        <!-- Infrastructure Errors -->
+        <Compile Include="Infrastructure/Errors/InfrastructureErrors.fs" />
+        <Compile Include="Infrastructure/Errors/InfrastructureErrorHelpers.fs" />
+
+         <!-- Shared -->
         <Compile Include="Shared/I18n/TranslationService.fs" />
         
+        <!-- Application Services -->
+        <Compile Include="Application/ErrorTranslation/ErrorTranslationService.fs" />
+        <Compile Include="Application/ErrorTranslation/ResourceKeyMapper.fs" />
+       
         <!-- UI State Types -->
         <Compile Include="UI/State/Types.fs" />
         <Compile Include="UI/State/ErrorHandling.fs" />

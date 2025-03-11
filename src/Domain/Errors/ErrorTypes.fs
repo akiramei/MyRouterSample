@@ -1,16 +1,23 @@
 namespace Domain.Errors
 
-/// エラーカテゴリーの定義
-type ErrorCategory =
-    | DomainError
-    | UIError
-    | InfrastructureError
+/// 共通エラーインターフェース
+/// すべてのエラーはこのインターフェースを実装する
+type IError =
+    /// エラーのカテゴリー
+    abstract Category: string
+    /// エラーコード（識別子）
+    abstract Code: string
+    /// ユーザー向けエラーメッセージ
+    abstract UserMessage: string
+    /// デバッグや詳細情報のためのコンテキスト
+    abstract Context: Map<string, string> option
+    /// コンテキスト情報を追加したエラーを返す
+    abstract WithContext: Map<string, string> -> IError
 
-/// 汎用エラー型 - obj型を使用
-type Error =
-    { Category: ErrorCategory
-      Details: obj
-      Context: Map<string, string> option }
+/// Railway Oriented Programming のための結果型
+type Result<'TSuccess> =
+    | Success of 'TSuccess
+    | Failure of IError
 
 /// ドメインエラーの詳細
 type DomainErrorDetails =
@@ -18,26 +25,32 @@ type DomainErrorDetails =
     | NotFoundError of entityType: string * id: string
     | BusinessRuleViolation of rule: string * details: string
 
-/// UIエラーの詳細
-type UIErrorDetails =
-    | MissingInput of fieldName: string
-    | InvalidSelection of selection: string
-    | FormError of message: string
+/// ドメインエラー実装
+type DomainError =
+    { Details: DomainErrorDetails
+      ErrorContext: Map<string, string> option }
 
-/// インフラストラクチャエラーの詳細
-type InfrastructureErrorDetails =
-    | NetworkError of message: string
-    | AuthenticationError of message: string
-    | AuthorizationError of message: string
-    | SystemError of message: string
+    interface IError with
+        member this.Category = "Domain"
 
-/// エラーコンテキスト情報型
-type ErrorContext =
-    { Timestamp: System.DateTime
-      RequestId: System.Guid option
-      UserId: string option }
+        member this.Code =
+            match this.Details with
+            | ValidationError _ -> "DOM-VAL-001"
+            | NotFoundError _ -> "DOM-NF-001"
+            | BusinessRuleViolation _ -> "DOM-BIZ-001"
 
-/// エラー結果型（Railway Oriented Programming用）
-type Result<'T> =
-    | Success of 'T
-    | Failure of Error
+        member this.UserMessage =
+            match this.Details with
+            | ValidationError(field, message) -> sprintf "入力エラー: %s - %s" field message
+            | NotFoundError(entity, id) -> sprintf "%s (ID: %s) が見つかりません" entity id
+            | BusinessRuleViolation(rule, details) -> sprintf "ビジネスルール違反: %s - %s" rule details
+
+        member this.Context = this.ErrorContext
+
+        member this.WithContext contextMap =
+            let newContext =
+                match this.ErrorContext with
+                | Some existingContext -> Some(Map.fold (fun acc k v -> Map.add k v acc) existingContext contextMap)
+                | None -> Some contextMap
+
+            { this with ErrorContext = newContext } :> IError
