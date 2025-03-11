@@ -1,7 +1,7 @@
 namespace UI.Routing
 
 open Feliz
-open Domain.ValueObjects.Types
+open UI.State
 open UI.State.ViewModels
 open UI.State.Messages
 open UI.Pages.HomePage

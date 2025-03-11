@@ -2,7 +2,7 @@ namespace UI.Routing
 
 open Feliz
 open Feliz.Router
-open Domain.ValueObjects.Types
+open UI.State
 open UI.State.ViewModels
 open UI.State.Messages
 open UI.Components.Templates.Layouts

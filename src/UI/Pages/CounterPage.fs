@@ -2,7 +2,6 @@ namespace UI.Pages
 
 open Feliz
 open Feliz.DaisyUI
-open Domain.ValueObjects.Types
 open UI.State.Messages
 open UI.State.ViewModels
 

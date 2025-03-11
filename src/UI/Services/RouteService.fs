@@ -1,9 +1,7 @@
 namespace UI.Services
 
-open Domain.ValueObjects.Types
 open Elmish
-open Feliz
-open Feliz.Router
+open UI.State
 open UI.State.Messages
 
 /// URLとアプリケーション状態間のマッピングを担当するサービス

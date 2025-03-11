@@ -3,10 +3,16 @@ namespace UI.State
 open Domain.ValueObjects
 open Domain.Errors
 
+type Page =
+    | Login
+    | Home
+    | Counter
+    | UserProfile of string
+    | NotFound
+
 /// UI層の状態を表すビューモデル
 /// UIの見た目や操作に関する技術的な関心事のみを含む
 module ViewModels =
-
     /// ホームページの状態
     type HomePageState = { IsLoading: bool }
 
@@ -41,7 +47,7 @@ module ViewModels =
     type ApplicationState =
         { CurrentUser: User.UserProfile option
           CurrentUrl: string list
-          CurrentPage: Domain.ValueObjects.Types.Page
+          CurrentPage: Page
           HomePage: HomePageState
           CounterPage: CounterPageState
           UserProfilePage: UserProfilePageState
