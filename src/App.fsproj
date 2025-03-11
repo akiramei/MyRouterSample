@@ -19,7 +19,6 @@
         <!-- ドメインエラー -->
         <Compile Include="Domain/Errors/ErrorTypes.fs" />
         <Compile Include="Domain/Errors/ErrorHelpers.fs" />
-        <Compile Include="Domain/Errors/Railway.fs" />
         
         <!-- 共有機能 -->
         <Compile Include="Shared/I18n/TranslationService.fs" />
