@@ -6,7 +6,7 @@ open Domain.ValueObjects.User
 open UI.Services.RouteService
 open UI.Components.Atoms.NavItem
 open Shared.I18n.TranslationService
-open Shared.I18n
+open UI.State.Messages
 
 /// Navigation bar component
 module Navigation =
@@ -14,7 +14,7 @@ module Navigation =
     let Navigation
         (currentUrl: string list)
         (currentUser: Domain.ValueObjects.User.UserProfile option)
-        (dispatch: UI.State.Types.Msg -> unit)
+        (dispatch: AppMsg -> unit)
         =
         let isActive = getActiveClass currentUrl
 
@@ -30,13 +30,13 @@ module Navigation =
                                           [ NavItem
                                                 "home"
                                                 (match currentUser with
-                                                 | Some user -> getText user.Language Home
+                                                 | Some user -> getText user.Language ResourceKey.Home
                                                  | None -> "Home")
                                                 (isActive "home") // ホームへのパスを一貫して"home"に変更
                                             NavItem
                                                 "counter"
                                                 (match currentUser with
-                                                 | Some user -> getText user.Language Counter
+                                                 | Some user -> getText user.Language ResourceKey.Counter
                                                  | None -> "Counter")
                                                 (isActive "counter")
                                             NavItem "user/john" "John's Profile" (isActive "user/john")
@@ -53,18 +53,21 @@ module Navigation =
                                           prop.text (
                                               match currentUser with
                                               | Some user ->
-                                                  sprintf "%s, %s" (getText user.Language Welcome) user.Username
+                                                  sprintf
+                                                      "%s, %s"
+                                                      (getText user.Language ResourceKey.Welcome)
+                                                      user.Username
                                               | None -> ""
                                           ) ]
 
                                     Daisy.button.button
                                         [ prop.className "btn-sm"
                                           button.ghost
-                                          prop.onClick (fun _ -> dispatch UI.State.Types.Logout)
+                                          prop.onClick (fun _ -> dispatch Logout)
                                           prop.children
                                               [ Html.text (
                                                     match currentUser with
-                                                    | Some user -> getText user.Language Logout
+                                                    | Some user -> getText user.Language ResourceKey.Logout
                                                     | None -> "Logout"
                                                 ) ] ] ] ]
                     | None -> Html.none ] ]

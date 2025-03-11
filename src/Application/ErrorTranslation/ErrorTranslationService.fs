@@ -44,7 +44,7 @@ module ErrorTranslationService =
         | InvalidSelection selection ->
             ErrorHelpers.validationWithParams "selection" "error.invalid.selection" (Map [ ("selection", selection) ])
 
-        | FormError(messageKey, params) -> ErrorHelpers.validationWithParams "form" messageKey params
+        | FormError(messageKey, parameters) -> ErrorHelpers.validationWithParams "form" messageKey parameters
 
     /// 任意のエラーをドメインエラーに変換
     let translateToDomainError (error: IError) : IError =

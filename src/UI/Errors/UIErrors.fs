@@ -30,7 +30,7 @@ type UIError =
             match this.Details with
             | MissingInput field -> Map [ ("field", field) ]
             | InvalidSelection selection -> Map [ ("selection", selection) ]
-            | FormError(_, params) -> params
+            | FormError(_, parameters) -> parameters
 
         member this.Context = this.ErrorContext
 

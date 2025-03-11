@@ -40,9 +40,9 @@ type DomainError =
 
         member this.MessageParams =
             match this.Details with
-            | ValidationError(field, _, params) -> Map.add "field" field params
+            | ValidationError(field, _, parameters) -> Map.add "field" field parameters
             | NotFoundError(entity, id) -> Map [ ("entity", entity); ("id", id) ]
-            | BusinessRuleViolation(_, _, params) -> params
+            | BusinessRuleViolation(_, _, parameters) -> parameters
 
         member this.Context = this.ErrorContext
 

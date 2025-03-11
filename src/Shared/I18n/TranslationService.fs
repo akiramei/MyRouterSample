@@ -40,6 +40,7 @@ module TranslationService =
     /// 内部使用のデフォルトリソース
     module private DefaultResources =
         /// ハードコードされたデフォルト言語リソース
+        /// ハードコードされたデフォルト言語リソース
         let getDefault (lang: Language) (key: ResourceKey) : string =
             match lang, key with
             | English, Login -> "Login"
@@ -83,6 +84,31 @@ module TranslationService =
 
             | English, LanguageRequired -> "Please select a language"
             | Japanese, LanguageRequired -> "言語を選択してください"
+
+            // 新規追加のエラーメッセージキー
+            | English, ErrorFieldRequired -> "{field} is required"
+            | Japanese, ErrorFieldRequired -> "{field}は必須です"
+
+            | English, ErrorFieldMinLength -> "{field} must be at least {min} characters"
+            | Japanese, ErrorFieldMinLength -> "{field}は{min}文字以上必要です"
+
+            | English, ErrorEntityNotFound -> "{entity} with ID {id} was not found"
+            | Japanese, ErrorEntityNotFound -> "ID {id}の{entity}は見つかりませんでした"
+
+            | English, ErrorNetworkConnection -> "Network error: {message}"
+            | Japanese, ErrorNetworkConnection -> "ネットワークエラー: {message}"
+
+            | English, ErrorAuthenticationFailed -> "Authentication failed: {message}"
+            | Japanese, ErrorAuthenticationFailed -> "認証エラー: {message}"
+
+            | English, ErrorAuthorizationDenied -> "You don't have permission to {action} this {resource}"
+            | Japanese, ErrorAuthorizationDenied -> "この{resource}を{action}する権限がありません"
+
+            | English, ErrorSystemGeneric -> "System error occurred: {message}"
+            | Japanese, ErrorSystemGeneric -> "システムエラーが発生しました: {message}"
+
+            | English, ErrorUnknown -> "An unknown error occurred"
+            | Japanese, ErrorUnknown -> "不明なエラーが発生しました"
 
     // 翻訳辞書の型
     type private TranslationDictionary = Dictionary<ResourceKey, Dictionary<Language, string>>

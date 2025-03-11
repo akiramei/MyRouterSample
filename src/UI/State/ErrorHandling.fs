@@ -5,6 +5,7 @@ open Domain.Errors
 open Domain.ValueObjects.User
 open Application.ErrorTranslation
 open Application.Services.ErrorMessageService
+open UI.State.Messages
 
 /// UI層のエラーハンドリング
 module ErrorHandling =
@@ -13,7 +14,7 @@ module ErrorHandling =
     let getErrorMessage (error: IError) (language: Language) = getUserMessage error language
 
     /// UIイベントハンドラ用のエラー処理
-    let handleError (error: IError) (language: Language) (dispatch: Types.Msg -> unit) =
+    let handleError (error: IError) (language: Language) (dispatch: AppMsg -> unit) =
         // まずドメインエラーに変換
         let domainError = ErrorTranslationService.translateToDomainError error
 
@@ -27,4 +28,4 @@ module ErrorHandling =
 #endif
 
         // UIにエラーを表示
-        dispatch (Types.ShowError message)
+        dispatch (ShowError message)

@@ -18,7 +18,7 @@ module Layouts =
                           prop.children
                               [ Navigation state.CurrentUrl state.CurrentUser dispatch
                                 // グローバルエラー表示の追加
-                                GlobalErrorDisplay state.ErrorDisplay (ClearError >> dispatch)
+                                GlobalErrorDisplay state.ErrorDisplay dispatch
                                 content ] ] ] ]
 
     [<ReactComponent>]
@@ -31,5 +31,5 @@ module Layouts =
                           prop.children
                               [
                                 // グローバルエラー表示の追加
-                                GlobalErrorDisplay state.ErrorDisplay (ClearError >> dispatch)
+                                GlobalErrorDisplay state.ErrorDisplay dispatch
                                 content ] ] ] ]

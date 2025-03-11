@@ -2,16 +2,18 @@ namespace UI.Components.Atoms
 
 open Feliz
 open Feliz.DaisyUI
-open UI.State.Types
+open UI.State.ViewModels // ViewModelsを使用
+open UI.State.Messages // Messagesを使用
 open Domain.Errors
 open Domain.ValueObjects.User
 open Application.Services.ErrorMessageService
 
 /// エラー表示コンポーネント
 module ErrorDisplay =
+
     /// グローバルエラーメッセージの表示
     [<ReactComponent>]
-    let GlobalErrorDisplay (model: ErrorDisplay) (dispatch: Msg -> unit) =
+    let GlobalErrorDisplay (model: ErrorDisplayState) (dispatch: AppMsg -> unit) =
         if model.IsVisible then
             Daisy.alert
                 [ alert.error
@@ -28,6 +30,7 @@ module ErrorDisplay =
                                           prop.children [ Html.span [ prop.text "✕" ] ] ] ] ] ] ]
         else
             Html.none
+
 
     /// エラーオブジェクトからメッセージを表示
     [<ReactComponent>]

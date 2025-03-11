@@ -22,7 +22,7 @@ module LoginPage =
         Daisy.fieldset
             [ prop.className "mt-4"
               prop.children
-                  [ Daisy.fieldsetLabel [ prop.htmlFor "username"; prop.text (getText language Username) ]
+                  [ Daisy.fieldsetLabel [ prop.htmlFor "username"; prop.text (getText language ResourceKey.Username) ]
 
                     Daisy.input
                         [ prop.id "username"
@@ -59,7 +59,7 @@ module LoginPage =
         Daisy.fieldset
             [ prop.className "mt-4"
               prop.children
-                  [ Daisy.fieldsetLabel [ prop.htmlFor "password"; prop.text (getText language Password) ]
+                  [ Daisy.fieldsetLabel [ prop.htmlFor "password"; prop.text (getText language ResourceKey.Password) ]
 
                     Daisy.input
                         [ prop.id "password"
@@ -95,7 +95,9 @@ module LoginPage =
         Daisy.fieldset
             [ prop.className "mt-4"
               prop.children
-                  [ Daisy.fieldsetLabel [ prop.htmlFor "language"; prop.text (getText currentLanguage Language) ]
+                  [ Daisy.fieldsetLabel
+                        [ prop.htmlFor "language"
+                          prop.text (getText currentLanguage ResourceKey.Language) ]
 
                     Daisy.select
                         [ prop.id "language"
@@ -137,7 +139,9 @@ module LoginPage =
             | None -> None, None
 
         Html.div
-            [ Html.h2 [ prop.className "text-2xl font-bold text-center"; prop.text (getText Login) ]
+            [ Html.h2
+                  [ prop.className "text-2xl font-bold text-center"
+                    prop.text (getText ResourceKey.Login) ]
 
               // フォーム全体のエラー表示
               ErrorView state.Error state.Language
@@ -161,8 +165,8 @@ module LoginPage =
                                 prop.type' "submit"
                                 button.primary
                                 // 送信中はローディング表示
-                                if state.IsSubmitting then button.loading else ()
-                                prop.text (getText Submit) ] ] ] ]
+                                if state.IsSubmitting then prop.className "loading" else ()
+                                prop.text (getText ResourceKey.Submit) ] ] ] ]
 
     // メインのログインページコンポーネント
     [<ReactComponent>]

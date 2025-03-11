@@ -4,7 +4,7 @@ open Domain.ValueObjects.Types
 open Elmish
 open Feliz
 open Feliz.Router
-open UI.State.Types
+open UI.State.Messages
 
 /// URLとアプリケーション状態間のマッピングを担当するサービス
 module RouteService =
@@ -31,12 +31,12 @@ module RouteService =
     let currentPath = Feliz.Router.Router.currentPath
 
     /// 指定されたパスに遷移するコマンドを生成
-    let navigateCmd (path: string) : Cmd<Msg> =
+    let navigateCmd (path: string) : Cmd<AppMsg> =
         Feliz.Router.Router.navigate (path)
         Cmd.ofMsg (UrlChanged [ path ])
 
     /// ページに基づいて遷移コマンドを生成（オプション）
-    let navigateToPage (page: Page) : Cmd<Msg> =
+    let navigateToPage (page: Page) : Cmd<AppMsg> =
         let path =
             match formatUrl page with
             | [] -> ""

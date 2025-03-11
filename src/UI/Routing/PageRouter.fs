@@ -21,7 +21,7 @@ module PageRouter =
 
         | Home -> HomePage()
 
-        | Counter -> CounterPage state.CounterPage.Count (CounterMsg >> dispatch)
+        | Counter -> CounterPage state.CounterPage (CounterMsg >> dispatch)
 
         | UserProfile userId ->
             // ユーザープロファイルページの表示

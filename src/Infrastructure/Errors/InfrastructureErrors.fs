@@ -83,6 +83,7 @@ module InfrastructureErrorHelpers =
 
         error.WithContext contextMap
 
+#if !FABLE_COMPILER
     /// 例外からインフラストラクチャエラーを作成（.NET環境用）
     let fromException (ex: System.Exception) : IError =
         let errorCode = "EX001"
@@ -96,13 +97,18 @@ module InfrastructureErrorHelpers =
         { InfrastructureError.Details = SystemError(errorCode, errorMessage)
           ErrorContext = Some contextMap }
         :> IError
+#endif
 
     /// 例外からインフラストラクチャエラーを作成（Fable環境用）
     let fromFableException (ex: System.Exception) : IError =
         let errorCode = "EX001"
         let errorMessage = ex.Message
 
-        let contextMap = Map [ "exceptionMessage", errorMessage ]
+        let contextMap =
+            Map
+                [ "exceptionMessage", errorMessage
+                  // Fable環境ではGetType()を使わない
+                  "exceptionType", "Unknown" ]
 
         { InfrastructureError.Details = SystemError(errorCode, errorMessage)
           ErrorContext = Some contextMap }

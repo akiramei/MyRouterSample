@@ -50,7 +50,8 @@ module LoginUpdate =
                   IsAuthenticated = true
                   LastLoginAt = Some System.DateTime.Now }
         else
-            Error(ErrorHelpers.businessRule "authentication" "error.authentication.failed")
+            let parameters = Map [ ("message", "Not Implemented.") ]
+            Error(ErrorHelpers.businessRuleWithParams "authentication" "error.authentication.failed" parameters)
 
     /// ログインページの状態更新
     let update (msg: LoginMsg) (state: LoginPageState) : LoginPageState * Cmd<LoginMsg> =
