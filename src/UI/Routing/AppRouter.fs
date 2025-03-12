@@ -11,6 +11,8 @@ open UI.Routing.PageRouter
 /// アプリケーション全体のルーティングを担当するモジュール
 /// URLの変更を検知し、適切なページとレイアウトを組み合わせる
 module AppRouter =
+    let private urlChangedHandler dispatch urlSegments = dispatch (UrlChanged urlSegments)
+
     [<ReactComponent>]
     let AppRouter (state: ApplicationState) (dispatch: AppMsg -> unit) =
         // ページコンテンツを取得
@@ -19,7 +21,7 @@ module AppRouter =
         // ルーターでURLの変更を監視
         React.router
             [ router.hashMode
-              router.onUrlChanged (fun urlSegments -> dispatch (UrlChanged urlSegments))
+              router.onUrlChanged (urlChangedHandler dispatch)
               router.children
                   [
                     // 現在のページに基づいて適切なレイアウトを選択

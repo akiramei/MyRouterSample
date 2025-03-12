@@ -85,7 +85,9 @@ module AppStateUpdate =
                 { state with
                     LoginPage = loginState
                     CurrentUser = Some userProfile
-                    CurrentPage = Home },
+                    CurrentPage = Home
+                    // エラー表示をクリア
+                    ErrorDisplay = { IsVisible = false; Message = None } },
                 Cmd.batch [ Cmd.map LoginMsg loginCmd; navigateCmd "home" ]
 
             | LoginFailed error ->
