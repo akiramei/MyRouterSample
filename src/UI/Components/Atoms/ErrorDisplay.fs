@@ -5,7 +5,7 @@ open Feliz.DaisyUI
 open UI.State.ViewModels // ViewModelsを使用
 open UI.State.Messages // Messagesを使用
 open Domain.Errors
-open Domain.ValueObjects.User
+open Domain.ValueObjects.Localization
 open Application.Services.ErrorMessageService
 
 /// エラー表示コンポーネント

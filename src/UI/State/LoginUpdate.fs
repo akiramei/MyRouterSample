@@ -5,8 +5,6 @@ open UI.State.ViewModels
 open UI.State.Messages
 open Domain.ValueObjects.User
 open Domain.Errors
-open Application.ErrorTranslation
-open Application.Services.ErrorMessageService
 
 /// ログイン関連の状態更新
 module LoginUpdate =

@@ -2,7 +2,7 @@ namespace UI.Pages
 
 open Feliz
 open Feliz.DaisyUI
-open Domain.ValueObjects.User
+open Domain.ValueObjects.Localization
 open UI.State.ViewModels
 open UI.State.Messages
 open Shared.I18n.TranslationService

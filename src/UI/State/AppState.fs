@@ -4,7 +4,7 @@ open Elmish
 open UI.Services.RouteService
 open UI.State
 open UI.State.ViewModels
-open UI.State.Messages
+open Domain.ValueObjects.Localization
 open Domain.ValueObjects.User
 
 /// アプリケーション状態管理

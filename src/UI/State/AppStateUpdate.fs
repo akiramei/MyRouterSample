@@ -4,6 +4,7 @@ open Elmish
 open UI.State.ViewModels
 open UI.State.Messages
 open UI.Services.RouteService
+open Domain.ValueObjects.Localization
 open Domain.ValueObjects.User
 open Application.Services.ErrorMessageService
 

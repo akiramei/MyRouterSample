@@ -1,8 +1,7 @@
 namespace UI.State
 
-open Elmish
 open Domain.Errors
-open Domain.ValueObjects.User
+open Domain.ValueObjects.Localization
 open Application.ErrorTranslation
 open Application.Services.ErrorMessageService
 open UI.State.Messages

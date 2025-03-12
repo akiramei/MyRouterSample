@@ -1,7 +1,7 @@
 namespace Application.Services
 
 open Domain.Errors
-open Domain.ValueObjects.User
+open Domain.ValueObjects.Localization
 open Shared.I18n.TranslationService
 
 /// エラーメッセージサービス - エラーからユーザー向けメッセージへの変換を担当

@@ -1,6 +1,7 @@
 namespace UI.State
 
 open Domain.ValueObjects
+open Domain.ValueObjects.Localization
 open Domain.Errors
 
 type Page =
@@ -34,7 +35,7 @@ module ViewModels =
     type LoginPageState =
         { Username: string
           Password: string
-          Language: User.Language
+          Language: Language
           IsSubmitting: bool
           Error: IError option }
 

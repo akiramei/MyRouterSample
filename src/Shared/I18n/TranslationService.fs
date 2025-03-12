@@ -2,7 +2,7 @@ namespace Shared.I18n
 
 open System
 open System.Collections.Generic
-open Domain.ValueObjects.User
+open Domain.ValueObjects.Localization
 
 #if FABLE_COMPILER
 open Fable.SimpleHttp

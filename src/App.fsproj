@@ -14,6 +14,7 @@
         </None>
         
         <!-- ドメイン層 -->
+        <Compile Include="Domain/ValueObjects/Localization.fs" />
         <Compile Include="Domain/ValueObjects/User.fs" />
         
         <!-- ドメインエラー -->

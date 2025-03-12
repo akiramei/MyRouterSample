@@ -1,5 +1,6 @@
 namespace UI.State
 
+open Domain.ValueObjects.Localization
 open Domain.ValueObjects.User
 open Domain.Errors
 
