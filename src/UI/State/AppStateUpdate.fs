@@ -175,12 +175,16 @@ module AppStateUpdate =
                 Cmd.none
 
         | Logout ->
-            // ログアウト処理
-            { state with
-                CurrentUser = None
-                CurrentPage = Login
-                LoginPage = AppState.initLoginPage () },
-            navigateCmd ""
+            // ログアウト処理の開始（ボタンクリック）
+            // まずユーザーをログアウト状態にする
+            let loggedOutState =
+                { state with
+                    CurrentUser = None
+                    LoginPage = AppState.initLoginPage ()
+                    ErrorDisplay = { IsVisible = false; Message = None } }
+
+            // 状態更新後、ログイン画面への遷移を要求
+            loggedOutState, navigateCmd ""
 
         | ShowError message ->
             // エラーメッセージの表示

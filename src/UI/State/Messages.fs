@@ -45,6 +45,6 @@ module Messages =
         | UserProfileMsg of UserProfileMsg
         | LoginMsg of LoginMsg
         | UrlChanged of string list
-        | Logout
+        | Logout // ログアウトボタンがクリックされた
         | ShowError of string
         | ClearError

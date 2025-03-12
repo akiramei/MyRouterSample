@@ -30,8 +30,7 @@ module RouteService =
 
     /// 指定されたパスに遷移するコマンドを生成
     let navigateCmd (path: string) : Cmd<AppMsg> =
-        Feliz.Router.Router.navigate (path)
-        Cmd.ofMsg (UrlChanged [ path ])
+        Cmd.ofEffect (fun _ -> Feliz.Router.Router.navigate path)
 
     /// ページに基づいて遷移コマンドを生成（オプション）
     let navigateToPage (page: Page) : Cmd<AppMsg> =
