@@ -12,25 +12,25 @@ module ErrorTranslationService =
     let translateInfrastructureError (error: InfrastructureError) : IError =
         match error.Details with
         | NetworkError(endpoint, message) ->
-            ErrorHelpers.businessRuleWithParams
+            ErrorHelpers.createBusinessRuleErrorWithParams
                 "connectivity"
                 "error.network.connection"
                 (Map [ ("endpoint", endpoint); ("message", message) ])
 
         | AuthenticationError message ->
-            ErrorHelpers.businessRuleWithParams
+            ErrorHelpers.createBusinessRuleErrorWithParams
                 "authentication"
                 "error.authentication.failed"
                 (Map [ ("message", message) ])
 
         | AuthorizationError(resource, action) ->
-            ErrorHelpers.businessRuleWithParams
+            ErrorHelpers.createBusinessRuleErrorWithParams
                 "authorization"
                 "error.authorization.denied"
                 (Map [ ("resource", resource); ("action", action) ])
 
         | SystemError(code, message) ->
-            ErrorHelpers.businessRuleWithParams
+            ErrorHelpers.createBusinessRuleErrorWithParams
                 "system"
                 "error.system.generic"
                 (Map [ ("code", code); ("message", message) ])
@@ -39,12 +39,13 @@ module ErrorTranslationService =
     let translateUIError (error: UIError) : IError =
         match error.Details with
         | MissingInput field ->
-            ErrorHelpers.validationWithParams field "error.field.required" (Map [ ("field", field) ])
+            ErrorHelpers.createValidationErrorWithParams field "error.field.required" (Map [ ("field", field) ])
 
         | InvalidSelection selection ->
-            ErrorHelpers.validationWithParams "selection" "error.invalid.selection" (Map [ ("selection", selection) ])
+            ErrorHelpers.createValidationErrorWithParams "selection" "error.invalid.selection" (Map [ ("selection", selection) ])
 
-        | FormError(messageKey, parameters) -> ErrorHelpers.validationWithParams "form" messageKey parameters
+        | FormError(messageKey, parameters) -> 
+            ErrorHelpers.createValidationErrorWithParams "form" messageKey parameters
 
     /// 任意のエラーをドメインエラーに変換
     let translateToDomainError (error: IError) : IError =
@@ -63,7 +64,7 @@ module ErrorTranslationService =
 
         | _ ->
             // 未知のエラー型の場合は汎用的なエラーに変換
-            ErrorHelpers.businessRuleWithParams
+            ErrorHelpers.createBusinessRuleErrorWithParams
                 "unknown"
                 "error.unknown"
                 (Map [ ("code", error.Code); ("message", error.MessageKey) ])

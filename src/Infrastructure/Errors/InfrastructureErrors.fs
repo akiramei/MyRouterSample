@@ -1,6 +1,8 @@
 namespace Infrastructure.Errors
 
 open Domain.Errors
+open Common.Platform
+open Common.Utilities
 
 /// インフラストラクチャ層のエラー詳細
 type InfrastructureErrorDetails =
@@ -39,36 +41,32 @@ type InfrastructureError =
         member this.Context = this.ErrorContext
 
         member this.WithContext contextMap =
-            let newContext =
-                match this.ErrorContext with
-                | Some existingContext -> Some(Map.fold (fun acc k v -> Map.add k v acc) existingContext contextMap)
-                | None -> Some contextMap
-
+            let newContext = ErrorUtils.mergeContexts this.ErrorContext contextMap
             { this with ErrorContext = newContext } :> IError
 
 /// インフラストラクチャエラー操作のためのヘルパー関数
 module InfrastructureErrorHelpers =
 
     /// ネットワークエラーを作成
-    let networkError endpoint message : IError =
+    let createNetworkError endpoint message : IError =
         { InfrastructureError.Details = NetworkError(endpoint, message)
           ErrorContext = None }
         :> IError
 
     /// 認証エラーを作成
-    let authenticationError message : IError =
+    let createAuthenticationError message : IError =
         { InfrastructureError.Details = AuthenticationError message
           ErrorContext = None }
         :> IError
 
     /// 権限エラーを作成
-    let authorizationError resource action : IError =
+    let createAuthorizationError resource action : IError =
         { InfrastructureError.Details = AuthorizationError(resource, action)
           ErrorContext = None }
         :> IError
 
     /// システムエラーを作成
-    let systemError code message : IError =
+    let createSystemError code message : IError =
         { InfrastructureError.Details = SystemError(code, message)
           ErrorContext = None }
         :> IError
@@ -83,41 +81,14 @@ module InfrastructureErrorHelpers =
 
         error.WithContext contextMap
 
-#if !FABLE_COMPILER
-    /// 例外からインフラストラクチャエラーを作成（.NET環境用）
-    let fromException (ex: System.Exception) : IError =
+    /// 例外からインフラストラクチャエラーを作成（プラットフォーム抽象化）
+    let createErrorFromException (ex: System.Exception) : IError =
         let errorCode = "EX001"
         let errorMessage = ex.Message
-
-        let contextMap =
-            Map
-                [ "exceptionType", ex.GetType().Name
-                  "stackTrace", if isNull ex.StackTrace then "" else ex.StackTrace ]
+        
+        // プラットフォーム抽象化層を使用して例外のコンテキスト情報を取得
+        let contextMap = PlatformServices.ExceptionHandling.getExceptionContext ex
 
         { InfrastructureError.Details = SystemError(errorCode, errorMessage)
           ErrorContext = Some contextMap }
         :> IError
-#endif
-
-    /// 例外からインフラストラクチャエラーを作成（Fable環境用）
-    let fromFableException (ex: System.Exception) : IError =
-        let errorCode = "EX001"
-        let errorMessage = ex.Message
-
-        let contextMap =
-            Map
-                [ "exceptionMessage", errorMessage
-                  // Fable環境ではGetType()を使わない
-                  "exceptionType", "Unknown" ]
-
-        { InfrastructureError.Details = SystemError(errorCode, errorMessage)
-          ErrorContext = Some contextMap }
-        :> IError
-
-#if FABLE_COMPILER
-    // Fable環境では簡略化されたバージョンを使用
-    let fromError = fromFableException
-#else
-    // 標準.NET環境ではフル機能版を使用
-    let fromError = fromException
-#endif

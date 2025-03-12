@@ -12,19 +12,19 @@ module LoginUpdate =
     let validateLogin (state: LoginPageState) : Result<LoginCredentials, IError> =
         // 入力が有効かをチェック
         if System.String.IsNullOrWhiteSpace state.Username then
-            Error(ErrorHelpers.validation "username" "error.field.required")
+            Error(ErrorHelpers.createValidationError "username" "error.field.required")
         elif state.Username.Length < 3 then
             Error(
-                ErrorHelpers.validationWithParams
+                ErrorHelpers.createValidationErrorWithParams
                     "username"
                     "error.field.min.length"
                     (Map [ ("min", "3"); ("field", "Username") ])
             )
         elif System.String.IsNullOrWhiteSpace state.Password then
-            Error(ErrorHelpers.validation "password" "error.field.required")
+            Error(ErrorHelpers.createValidationError "password" "error.field.required")
         elif state.Password.Length < 6 then
             Error(
-                ErrorHelpers.validationWithParams
+                ErrorHelpers.createValidationErrorWithParams
                     "password"
                     "error.field.min.length"
                     (Map [ ("min", "6"); ("field", "Password") ])
@@ -48,8 +48,8 @@ module LoginUpdate =
                   IsAuthenticated = true
                   LastLoginAt = Some System.DateTime.Now }
         else
-            let parameters = Map [ ("message", "Not Implemented.") ]
-            Error(ErrorHelpers.businessRuleWithParams "authentication" "error.authentication.failed" parameters)
+            let parameters = Map [ ("message", "Invalid username or password") ]
+            Error(ErrorHelpers.createBusinessRuleErrorWithParams "authentication" "error.authentication.failed" parameters)
 
     /// ログインページの状態更新
     let update (msg: LoginMsg) (state: LoginPageState) : LoginPageState * Cmd<LoginMsg> =

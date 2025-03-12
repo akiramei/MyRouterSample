@@ -1,6 +1,7 @@
 namespace UI.Errors
 
 open Domain.Errors
+open Common.Utilities
 
 /// UI層のエラー詳細
 type UIErrorDetails =
@@ -35,30 +36,30 @@ type UIError =
         member this.Context = this.ErrorContext
 
         member this.WithContext contextMap =
-            let newContext =
-                match this.ErrorContext with
-                | Some existingContext -> Some(Map.fold (fun acc k v -> Map.add k v acc) existingContext contextMap)
-                | None -> Some contextMap
-
+            let newContext = ErrorUtils.mergeContexts this.ErrorContext contextMap
             { this with ErrorContext = newContext } :> IError
 
 /// UIエラー操作のためのヘルパー関数
 module UIErrorHelpers =
 
     /// 必須フィールドのエラーを作成
-    let missingInput fieldName : IError =
+    let createMissingInputError fieldName : IError =
         { UIError.Details = MissingInput fieldName
           ErrorContext = None }
         :> IError
 
     /// 無効な選択のエラーを作成
-    let invalidSelection selection : IError =
+    let createInvalidSelectionError selection : IError =
         { UIError.Details = InvalidSelection selection
           ErrorContext = None }
         :> IError
 
     /// フォームエラーを作成
-    let formError messageKey parameters : IError =
+    let createFormError messageKey parameters : IError =
         { UIError.Details = FormError(messageKey, parameters)
           ErrorContext = None }
         :> IError
+        
+    /// エラーにコンテキスト情報を追加
+    let withContext (error: IError) (contextMap: Map<string, string>) : IError =
+        error.WithContext contextMap

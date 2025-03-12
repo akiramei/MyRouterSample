@@ -13,6 +13,10 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         
+        <!-- 共通ユーティリティとプラットフォーム抽象化 -->
+        <Compile Include="Common/Platform/PlatformServices.fs" />
+        <Compile Include="Common/Utilities/ErrorUtils.fs" />
+        
         <!-- ドメイン層 -->
         <Compile Include="Domain/ValueObjects/Localization.fs" />
         <Compile Include="Domain/ValueObjects/User.fs" />

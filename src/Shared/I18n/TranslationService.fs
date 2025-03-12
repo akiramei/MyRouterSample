@@ -3,11 +3,7 @@ namespace Shared.I18n
 open System
 open System.Collections.Generic
 open Domain.ValueObjects.Localization
-
-#if FABLE_COMPILER
-open Fable.SimpleHttp
-open Browser
-#endif
+open Common.Platform
 
 /// CSV形式の翻訳ファイルを読み込み、管理するサービス
 module TranslationService =
@@ -39,7 +35,6 @@ module TranslationService =
 
     /// 内部使用のデフォルトリソース
     module private DefaultResources =
-        /// ハードコードされたデフォルト言語リソース
         /// ハードコードされたデフォルト言語リソース
         let getDefault (lang: Language) (key: ResourceKey) : string =
             match lang, key with
@@ -149,9 +144,8 @@ module TranslationService =
 
     // CSVを解析して翻訳辞書にロードする
     let private parseCsvContent (csvContent: string) =
-#if FABLE_COMPILER
-        Dom.console.debug (sprintf "parseCsvContent %s" csvContent)
-#endif
+        // プラットフォーム抽象化層を使用してログ出力
+        PlatformServices.Logging.debug (sprintf "Parsing CSV content: %d bytes" csvContent.Length)
 
         let lines = csvContent.Split('\n')
 
@@ -163,9 +157,7 @@ module TranslationService =
         let enIndex = Array.findIndex (fun h -> h = "en") headers
         let jaIndex = Array.findIndex (fun h -> h = "ja") headers
 
-#if FABLE_COMPILER
-        Dom.console.debug (sprintf "Column indices: en=%d, ja=%d" enIndex jaIndex)
-#endif
+        PlatformServices.Logging.debug (sprintf "Column indices: en=%d, ja=%d" enIndex jaIndex)
 
         // 新しい翻訳辞書を作成
         let newTranslations = TranslationDictionary()
@@ -192,8 +184,8 @@ module TranslationService =
                             langDict.Add(Language.Japanese, values.[jaIndex])
 
                         newTranslations.Add(key, langDict)
-#if FABLE_COMPILER
-                        Dom.console.debug (
+                        
+                        PlatformServices.Logging.debug (
                             sprintf
                                 "Added key: %A - en:%s, ja:%s"
                                 key
@@ -206,51 +198,37 @@ module TranslationService =
                                  else
                                      "missing")
                         )
-#endif
                     | None ->
                         // 不明なキーは無視
-#if FABLE_COMPILER
-                        Dom.console.warn (sprintf "Unknown key: %s" keyString)
-#endif
-                        ()
+                        PlatformServices.Logging.warn (sprintf "Unknown key: %s" keyString)
 
         // グローバル辞書を更新
         translations <- newTranslations
         isInitialized <- true
-#if FABLE_COMPILER
-        Dom.console.debug (
+        PlatformServices.Logging.debug (
             sprintf "Dictionary initialized with %d entries. isInitialized=%b" newTranslations.Count isInitialized
         )
-#endif
 
     /// 翻訳を取得する関数
     let getText (lang: Language) (key: ResourceKey) : string =
-#if FABLE_COMPILER
-        Dom.console.debug (sprintf "getText: lang=%A, key=%A, isInitialized=%b" lang key isInitialized)
-#endif
+        PlatformServices.Logging.debug (sprintf "getText: lang=%A, key=%A, isInitialized=%b" lang key isInitialized)
 
         if not isInitialized then
             // 初期化されていない場合はデフォルト値を使用
             let result = DefaultResources.getDefault lang key
-#if FABLE_COMPILER
-            Dom.console.debug (sprintf "Using default text: %s" result)
-#endif
+            PlatformServices.Logging.debug (sprintf "Using default text: %s" result)
             result
         else if
             // 翻訳辞書から取得
             translations.ContainsKey(key) && translations.[key].ContainsKey(lang)
         then
             let result = translations.[key].[lang]
-#if FABLE_COMPILER
-            Dom.console.debug (sprintf "Using dictionary text: %s" result)
-#endif
+            PlatformServices.Logging.debug (sprintf "Using dictionary text: %s" result)
             result
         else
             // キーが見つからない場合はデフォルト値にフォールバック
             let fallback = DefaultResources.getDefault lang key
-#if FABLE_COMPILER
-            Dom.console.warn (sprintf "Missing translation: lang=%A, key=%A, using fallback: %s" lang key fallback)
-#endif
+            PlatformServices.Logging.warn (sprintf "Missing translation: lang=%A, key=%A, using fallback: %s" lang key fallback)
             fallback
 
     /// 翻訳ファイルを読み込む関数
@@ -260,29 +238,24 @@ module TranslationService =
             true
         with ex ->
             // エラーが発生した場合はfalseを返す
-#if FABLE_COMPILER
-            Dom.console.error ("Failed to load translations: " + ex.Message)
-#else
-            Console.WriteLine("Failed to load translations: " + ex.Message)
-#endif
+            PlatformServices.Logging.error ("Failed to load translations: " + ex.Message)
             false
 
-#if FABLE_COMPILER
-    /// Fable用のCSVファイル読み込み関数（Http.get版）
+    /// CSVファイル読み込み関数（プラットフォーム抽象化）
     let loadTranslationsFromFile () =
         if not isInitialized then
             async {
                 try
-                    // Http.getを使用してCSVファイルを取得
-                    let! (statusCode, responseText) = Http.get "/translations.csv"
-
-                    if statusCode = 200 then
-                        loadTranslations responseText |> ignore
-                        Dom.console.debug (sprintf "Successed to load translations: Status code %d" statusCode)
-                    else
-                        Dom.console.error (sprintf "Failed to load translations: Status code %d" statusCode)
+                    // プラットフォーム抽象化層を使用してファイルを読み込む
+                    let! result = PlatformServices.FileSystem.readFileAsync "/translations.csv"
+                    
+                    match result with
+                    | Ok content ->
+                        loadTranslations content |> ignore
+                        PlatformServices.Logging.debug "Successfully loaded translations"
+                    | Error errorMessage ->
+                        PlatformServices.Logging.error (sprintf "Failed to load translations: %s" errorMessage)
                 with ex ->
-                    Dom.console.error ("Failed to load translations file: " + ex.Message)
+                    PlatformServices.Logging.error ("Failed to load translations file: " + ex.Message)
             }
             |> Async.StartImmediate
-#endif

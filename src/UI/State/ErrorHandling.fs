@@ -5,6 +5,7 @@ open Domain.ValueObjects.Localization
 open Application.ErrorTranslation
 open Application.Services.ErrorMessageService
 open UI.State.Messages
+open Common.Platform
 
 /// UI層のエラーハンドリング
 module ErrorHandling =
@@ -20,11 +21,10 @@ module ErrorHandling =
         // ユーザー向けメッセージを取得
         let message = getErrorMessage domainError language
 
-        // デバッグモードでは追加情報をログに出力
-#if DEBUG
-        let debugInfo = getDebugInfo domainError
-        Browser.Dom.console.error (sprintf "Error details: %s" debugInfo)
-#endif
+        // 開発環境では追加情報をログに出力
+        if PlatformServices.Environment.isDevelopment then
+            let debugInfo = getDebugInfo domainError
+            PlatformServices.Logging.debug (sprintf "Error details: %s" debugInfo)
 
         // UIにエラーを表示
         dispatch (ShowError message)
