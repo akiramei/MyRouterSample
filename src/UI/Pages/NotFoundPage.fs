@@ -6,7 +6,6 @@ module NotFoundPage =
     open Feliz
     open Feliz.DaisyUI
 
-    [<ReactComponent>]
     let NotFoundPage () =
         Daisy.card
             [ prop.className "shadow-lg bg-base-100 border image-full"

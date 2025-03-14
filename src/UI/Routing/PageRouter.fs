@@ -13,7 +13,6 @@ open UI.Pages.LoginPage
 /// ページのルーティングを担当するモジュール
 /// ページコンテンツの選択のみを担当し、レイアウトには関与しない
 module PageRouter =
-    [<ReactComponent>]
     let PageContent (state: ApplicationState) (dispatch: AppMsg -> unit) =
         // 現在のページに基づいて適切なページコンポーネントを返す
         match state.CurrentPage with

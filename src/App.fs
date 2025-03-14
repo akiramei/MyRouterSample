@@ -14,7 +14,7 @@ loadTranslationsFromFile () |> ignore
 // Program entry point
 let main =
     Program.mkProgram AppState.init AppStateUpdate.update AppRouter
-    |> Program.withReactSynchronous "elmish-app"
+    |> Program.withReactBatched "elmish-app"
     // 開発環境の場合のみコンソールトレースを有効化
     |> (if PlatformServices.Environment.isDevelopment then 
            Program.withConsoleTrace 

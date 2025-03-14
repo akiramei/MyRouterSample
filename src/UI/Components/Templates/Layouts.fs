@@ -8,7 +8,6 @@ open UI.Components.Atoms.ErrorDisplay
 
 /// レイアウトコンポーネント
 module Layouts =
-    [<ReactComponent>]
     let AuthenticatedLayout (state: ApplicationState) (dispatch: AppMsg -> unit) (content: ReactElement) =
         Html.div
             [ prop.className "min-h-screen bg-base-300"
@@ -21,7 +20,6 @@ module Layouts =
                                 GlobalErrorDisplay state.ErrorDisplay dispatch
                                 content ] ] ] ]
 
-    [<ReactComponent>]
     let UnauthenticatedLayout (state: ApplicationState) (dispatch: AppMsg -> unit) (content: ReactElement) =
         Html.div
             [ prop.className "min-h-screen bg-base-300"

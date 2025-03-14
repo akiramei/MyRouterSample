@@ -6,7 +6,6 @@ module UserProfilePage =
     open Feliz
     open Feliz.DaisyUI
 
-    [<ReactComponent>]
     let UserProfilePage (username: string) (isLoading: bool) =
         Daisy.card
             [ prop.className "shadow-lg bg-base-100 border"

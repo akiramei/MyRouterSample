@@ -10,7 +10,6 @@ open UI.State.Messages
 
 /// Navigation bar component
 module Navigation =
-    [<ReactComponent>]
     let Navigation
         (currentUrl: string list)
         (currentUser: Domain.ValueObjects.User.UserProfile option)

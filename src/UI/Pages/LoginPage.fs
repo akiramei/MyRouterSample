@@ -12,7 +12,6 @@ open UI.Components.Atoms.ErrorDisplay
 /// ログインページコンポーネント
 module LoginPage =
     // ユーザー名入力フィールドコンポーネント
-    [<ReactComponent>]
     let private UsernameField
         (username: string)
         (language: Language)
@@ -49,7 +48,6 @@ module LoginPage =
                     | None -> Html.none ] ]
 
     // パスワード入力フィールドコンポーネント
-    [<ReactComponent>]
     let private PasswordField
         (password: string)
         (language: Language)
@@ -86,7 +84,6 @@ module LoginPage =
                     | None -> Html.none ] ]
 
     // 言語選択コンポーネント
-    [<ReactComponent>]
     let private LanguageSelector (currentLanguage: Language) (onChanged: Language -> unit) =
         let languageOptions =
             [ Language.English, Language.ToDisplayName Language.English
@@ -115,7 +112,6 @@ module LoginPage =
                                     Html.option [ prop.value displayName; prop.text displayName ] ] ] ] ]
 
     // ログインカードの内容
-    [<ReactComponent>]
     let private LoginCardContent (state: LoginPageState) (dispatch: LoginMsg -> unit) =
         let getText = getText state.Language
 
@@ -169,7 +165,6 @@ module LoginPage =
                                 prop.text (getText ResourceKey.Submit) ] ] ] ]
 
     // メインのログインページコンポーネント
-    [<ReactComponent>]
     let LoginPage (state: LoginPageState) (dispatch: LoginMsg -> unit) =
         Daisy.hero
             [ prop.className "min-h-screen bg-base-200"

@@ -12,7 +12,6 @@ open Application.Services.ErrorMessageService
 module ErrorDisplay =
 
     /// グローバルエラーメッセージの表示
-    [<ReactComponent>]
     let GlobalErrorDisplay (model: ErrorDisplayState) (dispatch: AppMsg -> unit) =
         if model.IsVisible then
             Daisy.alert
@@ -33,7 +32,6 @@ module ErrorDisplay =
 
 
     /// エラーオブジェクトからメッセージを表示
-    [<ReactComponent>]
     let ErrorView (error: IError option) (language: Language) =
         match error with
         | Some err ->
@@ -55,7 +53,6 @@ module ErrorDisplay =
         | None -> Html.none
 
     /// フィールドレベルのエラー表示
-    [<ReactComponent>]
     let FieldError (fieldName: string) (errors: IError list) (language: Language) =
         // 指定されたフィールドに関連するエラーのみをフィルタリング
         let fieldErrors =

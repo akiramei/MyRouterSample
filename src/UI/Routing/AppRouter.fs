@@ -13,7 +13,6 @@ open UI.Routing.PageRouter
 module AppRouter =
     let private urlChangedHandler dispatch urlSegments = dispatch (UrlChanged urlSegments)
 
-    [<ReactComponent>]
     let AppRouter (state: ApplicationState) (dispatch: AppMsg -> unit) =
         // ページコンテンツを取得
         let pageContent = PageContent state dispatch

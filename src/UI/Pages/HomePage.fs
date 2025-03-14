@@ -9,7 +9,6 @@ module HomePage =
     open Feliz
     open Feliz.DaisyUI
 
-    [<ReactComponent>]
     let HomePage () =
         Daisy.hero
             [ prop.className "bg-primary rounded-box"

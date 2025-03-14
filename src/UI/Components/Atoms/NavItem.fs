@@ -9,7 +9,6 @@ module NavItem =
     open Feliz
     open Feliz.Router
 
-    [<ReactComponent>]
     let NavItem (path: string) (text: string) (isActive: string) =
         let hashPath = if path = "" then "" else "#/" + path
         

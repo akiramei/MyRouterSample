@@ -8,7 +8,6 @@ open UI.State.ViewModels
 /// Counter page component with increment/decrement functionality
 module CounterPage =
 
-    [<ReactComponent>]
     let CounterPage (model: CounterPageState) (dispatch: CounterMsg -> unit) =
         Daisy.card
             [ prop.className "shadow-lg bg-base-100 border"
